@@ -13,6 +13,20 @@ import { environment } from "../environments/environment";
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
 
+import { databaseService } from "./services/database.service";
+import { Subscription } from "rxjs";
+
+interface firebaseEnvironment {
+  apiKey: string;
+  authDomain: string;
+  databaseURL: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId: string;
+}
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -20,7 +34,8 @@ import { AppRoutingModule } from "./app-routing.module";
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireModule.initializeApp(environment.firebase), //will this change during the app's functioning? Isnt it defined initially?
+    // I mean it says "initializeApp". Maybe if it is an observable ? idk
     AngularFirestoreModule,
   ],
   providers: [
@@ -30,4 +45,6 @@ import { AppRoutingModule } from "./app-routing.module";
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {}
+}

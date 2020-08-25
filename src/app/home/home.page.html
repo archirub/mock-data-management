@@ -9,26 +9,18 @@
 <ion-content>
   <ion-grid>
     <ion-row>
-      <ion-col>
-        <ion-button (click)="onClickTest()">Test </ion-button>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col size="12">
-        <ion-card>
-          <ion-card-header>
-            Generate new users
-          </ion-card-header>
-          <ion-card-content class="vertical-align-content">
-            <ion-input
-              [(ngModel)]="usersToGenerate"
-              placeholder="Number of users"
-            ></ion-input>
-
-            <ion-button (click)="onGenerateUsers()">Generate Users</ion-button>
-          </ion-card-content>
-        </ion-card>
+      <ion-col size="12" size-md="6" offset-md="3">
+        <ion-segment (ionChange)="onChangeDatabase($event)" value="development">
+          <ion-segment-button value="development">
+            <ion-label>Development database</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="production">
+            <ion-label>Production database</ion-label>
+          </ion-segment-button>
+        </ion-segment>
       </ion-col>
     </ion-row>
   </ion-grid>
+  <app-test-generator></app-test-generator>
+  <app-user-generator></app-user-generator>
 </ion-content>
