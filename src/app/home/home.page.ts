@@ -1,7 +1,4 @@
-import { Component, OnInit } from "@angular/core";
-import { AngularFirestore } from "@angular/fire/firestore";
-import { AngularFireModule } from "@angular/fire";
-import { environment } from "../../environments/environment.prod";
+import { Component } from "@angular/core";
 
 import { databaseService } from "../services/database.service";
 

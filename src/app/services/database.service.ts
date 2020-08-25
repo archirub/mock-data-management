@@ -32,6 +32,10 @@ export class databaseService {
   private devDatabase: firebase.app.App;
 
   public activeDatabase: firebase.app.App;
+  public userCollectionName: string = "users";
+  public testCollectionName: string = "test";
+  public matchCollectionName: string = "matches";
+  public conversationCollectionName: string = "conversations";
 
   constructor() {
     firebase.initializeApp(this.productionEnvironment, "production");

@@ -16,7 +16,7 @@ export class TestGeneratorComponent {
   ): void {
     const data: string = faker.internet.email();
     database
-      .collection("test")
+      .collection(this.databaseService.testCollectionName)
       .add({
         email: data,
       })

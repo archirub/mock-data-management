@@ -34,8 +34,7 @@ interface firebaseEnvironment {
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    AngularFireModule.initializeApp(environment.firebase), //will this change during the app's functioning? Isnt it defined initially?
-    // I mean it says "initializeApp". Maybe if it is an observable ? idk
+    AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
   ],
   providers: [

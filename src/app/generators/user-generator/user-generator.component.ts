@@ -3,8 +3,7 @@ import { Component } from "@angular/core";
 
 import * as faker from "faker";
 
-import { userPictures } from "../../interfaces/userPictures.model";
-import { userProfile } from "../../interfaces/userProfile.model";
+import { userProfile, userPictures } from "../../interfaces/user.model";
 
 @Component({
   selector: "app-user-generator",
@@ -33,7 +32,7 @@ export class UserGeneratorComponent {
 
   constructor(private databaseService: databaseService) {}
 
-  private onGenerateUsers(
+  public onGenerateUsers(
     amount: number,
     database: any = this.databaseService.activeDatabase.firestore()
   ): void {
@@ -44,14 +43,14 @@ export class UserGeneratorComponent {
     // Generating "amount" number of profiles
     Array.from({ length: amount }, () => {
       database
-        .collection("users")
+        .collection(this.databaseService.userCollectionName)
         .add(this.newUser())
         .catch((err) => console.log(err));
     });
     console.log(`${amount} user profiles were added to the database.`);
   }
 
-  public newUser(): userProfile {
+  private newUser(): userProfile {
     //First & last names and date of birth
     const firstName: string = faker.name.firstName();
     const lastName: string = faker.name.lastName();
@@ -92,10 +91,13 @@ export class UserGeneratorComponent {
       lastName: lastName,
       dateOfBirth: dateOfBirth,
       pictures: pictures,
-      course: course,
-      societies: societies,
-      university: university,
       biography: biography,
+      socialFeatures: {
+        university: university,
+        course: course,
+        societies: societies,
+      },
+      hasMatchDocument: false,
     };
 
     return userProfile;
