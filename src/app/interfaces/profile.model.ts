@@ -1,26 +1,34 @@
-export interface userProfile {
+export interface profile {
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
   pictures: userPictures;
   biography: string;
   socialFeatures: socialFeatures;
-
-  // Helps in match-generator to find which profiles don't yet have
-  // a corresponding match document
-  hasMatchDocument: boolean;
+  matches: IDarray;
+  hasMatchDocument: boolean; // Helps in match-generator to find profiles with no match document
 }
 
 export interface socialFeatures {
   university: string;
   course: string;
-  societies: string[];
+  societies: societies;
 }
 
 export interface physicalFeatures {
   height: string;
   hairColor: string;
   skinTone: string;
+}
+
+export interface societies {
+  [society: string]: true;
+}
+
+export type IDarray = string[];
+
+export interface IDmap {
+  [userID: string]: true;
 }
 
 // users must have between 1 and 5 pictures
@@ -34,6 +42,12 @@ export interface matchObject {
   PI: number;
   socialFeatures: socialFeatures;
   physicalFeatures: physicalFeatures;
-  bannedUsers?: string[];
-  likedUsers?: string[];
+  bannedUsers: IDarray;
+  likedUsers: IDarray;
+}
+export interface profileObject {
+  ID: string;
+  profileSnapshot: firebase.firestore.QueryDocumentSnapshot<
+    firebase.firestore.DocumentData
+  >;
 }

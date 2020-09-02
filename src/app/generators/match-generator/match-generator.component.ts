@@ -1,12 +1,9 @@
 import { Component } from "@angular/core";
 
-import { databaseService } from "./../../services/database.service";
+import { EnvironmentService } from "../../services/environment.service";
+import { NameService } from "src/app/services/name.service";
 
-import {
-  socialFeatures,
-  physicalFeatures,
-  matchObject,
-} from "./../../interfaces/user.model";
+import { socialFeatures, matchObject } from "../../interfaces/profile.model";
 
 @Component({
   selector: "app-match-generator",
@@ -24,7 +21,10 @@ export class MatchGeneratorComponent {
   private heightList: string[] = ["short", "average", "tall"];
   private hairColorList: string[] = ["blonde", "brown", "red", "black"];
 
-  constructor(private databaseService: databaseService) {}
+  constructor(
+    private databaseService: EnvironmentService,
+    private name: NameService
+  ) {}
 
   public async onGenerateMatches(amount: number) {
     // Converting string to number as <ion-input> gives a string.
@@ -38,7 +38,7 @@ export class MatchGeneratorComponent {
 
     const userRefs = await this.databaseService.activeDatabase
       .firestore()
-      .collection(this.databaseService.userCollectionName)
+      .collection(this.name.profileCollection)
       .where("hasMatchDocument", "==", false)
       .limit(amount)
       .get();
@@ -67,10 +67,10 @@ export class MatchGeneratorComponent {
     const batch = this.databaseService.activeDatabase.firestore().batch();
 
     // Pushing match docs to batch object
-    matches.forEach((match, index) => {
+    matches.forEach((match) => {
       const matchRef = this.databaseService.activeDatabase
         .firestore()
-        .collection(this.databaseService.matchCollectionName)
+        .collection(this.name.matchCollection)
         .doc();
       batch.set(matchRef, match);
     });
@@ -83,12 +83,12 @@ export class MatchGeneratorComponent {
     // Commiting changes
     batch
       .commit()
-      .then((e) => {
+      .then(() => {
         console.log(
           `${documentsFound} new match documents were added to the database.`
         );
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err.message));
   }
 
   private newMatch(userID_: string, socialFeatures_: socialFeatures) {
@@ -112,6 +112,8 @@ export class MatchGeneratorComponent {
         hairColor: hairColor,
         skinTone: skinTone,
       },
+      bannedUsers: [],
+      likedUsers: [],
     };
 
     return matchObject;

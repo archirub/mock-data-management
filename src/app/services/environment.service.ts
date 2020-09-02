@@ -1,13 +1,12 @@
 import { Injectable } from "@angular/core";
-import { Subject, Observable } from "rxjs";
 
-import { firebaseEnvironment } from "../interfaces/firebaseEnvironment.model";
+import { firebaseEnvironment } from "../interfaces/environment.model";
 import * as firebase from "firebase";
 
 @Injectable({
   providedIn: "root",
 })
-export class databaseService {
+export class EnvironmentService {
   private productionEnvironment: firebaseEnvironment = {
     apiKey: "AIzaSyD7TzqM68bZ1FvVyB5PhZSJpT-CdsCvHdE",
     authDomain: "nemo-2c57c.firebaseapp.com",
@@ -32,10 +31,6 @@ export class databaseService {
   private devDatabase: firebase.app.App;
 
   public activeDatabase: firebase.app.App;
-  public userCollectionName: string = "users";
-  public testCollectionName: string = "test";
-  public matchCollectionName: string = "matches";
-  public conversationCollectionName: string = "conversations";
 
   constructor() {
     firebase.initializeApp(this.productionEnvironment, "production");

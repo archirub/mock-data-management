@@ -13,20 +13,6 @@ import { environment } from "../environments/environment";
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
 
-import { databaseService } from "./services/database.service";
-import { Subscription } from "rxjs";
-
-interface firebaseEnvironment {
-  apiKey: string;
-  authDomain: string;
-  databaseURL: string;
-  projectId: string;
-  storageBucket: string;
-  messagingSenderId: string;
-  appId: string;
-  measurementId: string;
-}
-
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],

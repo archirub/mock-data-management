@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 
-import { databaseService } from "../../services/database.service";
+import { NameService } from "./../../services/name.service";
+import { EnvironmentService } from "../../services/environment.service";
 import * as faker from "faker";
 
 @Component({
@@ -9,14 +10,17 @@ import * as faker from "faker";
   styleUrls: ["./test-generator.component.scss"],
 })
 export class TestGeneratorComponent {
-  constructor(private databaseService: databaseService) {}
+  constructor(
+    private environment: EnvironmentService,
+    private name: NameService
+  ) {}
 
   public onClickTest(
-    database: any = this.databaseService.activeDatabase.firestore()
+    database: any = this.environment.activeDatabase.firestore()
   ): void {
     const data: string = faker.internet.email();
     database
-      .collection(this.databaseService.testCollectionName)
+      .collection(this.name.testCollection)
       .add({
         email: data,
       })

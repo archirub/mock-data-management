@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { databaseService } from "../services/database.service";
+import { EnvironmentService } from "../services/environment.service";
 
 @Component({
   selector: "app-home",
@@ -8,10 +8,10 @@ import { databaseService } from "../services/database.service";
   styleUrls: ["home.page.scss"],
 })
 export class HomePage {
-  constructor(private databaseService: databaseService) {}
+  constructor(private environment: EnvironmentService) {}
 
   public onChangeDatabase(event) {
-    this.databaseService.changeDatabase();
-    console.log(`Database now is: ${this.databaseService.activeDatabase.name}`);
+    this.environment.changeDatabase();
+    console.log(`Database now is: ${this.environment.activeDatabase.name}`);
   }
 }

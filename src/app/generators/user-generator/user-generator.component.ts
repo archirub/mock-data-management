@@ -1,9 +1,15 @@
-import { databaseService } from "../../services/database.service";
 import { Component } from "@angular/core";
+
+import { EnvironmentService } from "../../services/environment.service";
+import { NameService } from "./../../services/name.service";
 
 import * as faker from "faker";
 
-import { userProfile, userPictures } from "../../interfaces/user.model";
+import {
+  profile,
+  userPictures,
+  societies,
+} from "../../interfaces/profile.model";
 
 @Component({
   selector: "app-user-generator",
@@ -30,11 +36,14 @@ export class UserGeneratorComponent {
 
   private UniverstiesList: string[] = ["UCL"];
 
-  constructor(private databaseService: databaseService) {}
+  constructor(
+    private environment: EnvironmentService,
+    private name: NameService
+  ) {}
 
   public onGenerateUsers(
     amount: number,
-    database: any = this.databaseService.activeDatabase.firestore()
+    database: any = this.environment.activeDatabase.firestore()
   ): void {
     if (!amount) {
       return console.error("You must enter a valid quantity of user profiles");
@@ -43,14 +52,14 @@ export class UserGeneratorComponent {
     // Generating "amount" number of profiles
     Array.from({ length: amount }, () => {
       database
-        .collection(this.databaseService.userCollectionName)
+        .collection(this.name.profileCollection)
         .add(this.newUser())
         .catch((err) => console.log(err));
     });
     console.log(`${amount} user profiles were added to the database.`);
   }
 
-  private newUser(): userProfile {
+  private newUser(): profile {
     //First & last names and date of birth
     const firstName: string = faker.name.firstName();
     const lastName: string = faker.name.lastName();
@@ -71,9 +80,11 @@ export class UserGeneratorComponent {
 
     //Societies
     //Selecting just one society right now, should be adjusted to something like 1 to 5 different ones
-    const societies: string[] = [
-      this.societiesList[Math.floor(Math.random() * this.societiesList.length)],
-    ];
+    const societies: societies = {
+      [this.societiesList[
+        Math.floor(Math.random() * this.societiesList.length)
+      ]]: true,
+    };
 
     //University
     const university: string = this.UniverstiesList[
@@ -81,12 +92,12 @@ export class UserGeneratorComponent {
     ];
 
     //Biography
-    const biography: string = faker.random.words(
+    const biography: string = faker.lorem.sentence(
       Math.floor(Math.random() * 20 + 5)
     );
 
     // Creating user profile object
-    const userProfile: userProfile = {
+    const userProfile: profile = {
       firstName: firstName,
       lastName: lastName,
       dateOfBirth: dateOfBirth,
@@ -97,6 +108,7 @@ export class UserGeneratorComponent {
         course: course,
         societies: societies,
       },
+      matches: [],
       hasMatchDocument: false,
     };
 
