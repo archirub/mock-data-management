@@ -27,11 +27,25 @@ export class ConversationGeneratorComponent {
     private get: GetService
   ) {}
 
+  /**
+   * Generates a given number of messages in a given number of conversations, for a given user.
+   * @summary The function firsts fetches a set of random user profiles from the database, one for each conversation.
+   * The set is randomly chosen as it is impossible to fetch only users who don't yet have a conversation document with
+   * the given user, due to the nature of the database (noSQL/firestore).
+   * For the users fetched who already have a conversation document with the given user, that document will just be
+   * filled with additional message documents.
+   * For those who don't, a conversation document is first created between them and the given user, before being filled
+   * with message documents.
+   * @param {string} userID - The ID of the user for which conversation documents are generated
+   * @param {number} numberOfConversations - The number of conversation documents to generate.
+   * @param {number} numberOfMessages - The number of message documents to generate per conversation.
+   * @return {Promise<void>}
+   */
   public async onClickGenerate(
     userID: string,
     numberOfConversations: number,
     numberOfMessages: number
-  ) {
+  ): Promise<void> {
     numberOfConversations = numberOfConversations ? +numberOfConversations : 10;
     numberOfMessages = numberOfMessages ? +numberOfMessages : 10;
     if (!userID || !numberOfConversations) {
@@ -122,6 +136,12 @@ export class ConversationGeneratorComponent {
     await this.updateLastMessage(myID, theirIDs);
   }
 
+  /**
+   * Generates conversation documents between the singular user and the group of users provided, directly to the database.
+   * @param {profileObject} myProfile - Object that contains the user's ID and a snapshot of his profile data.
+   * @param {profileObject[]} theirProfiles - Array of objects that each contains the user's ID and a snapshot of his profile data.
+   * @return {Promise<void>}
+   */
   private async generateConversations(
     myProfile: profileObject,
     theirProfiles: profileObject[]
@@ -145,30 +165,23 @@ export class ConversationGeneratorComponent {
           const conversationRef = this.get.conversationCollection.doc();
           batch.set(conversationRef, conversation);
 
-          if (myMatches) {
-            myMatches.push(hisProfile.ID);
-          } else {
-            myMatches = [hisProfile.ID];
-          }
+          myMatches = this.updateMatches(myMatches, hisProfile.ID);
 
           batch.update(myProfile.profileSnapshot.ref, { matches: myMatches });
           batch.update(myMatchData.ref, { matches: myMatches });
 
           let hisMatches: null | IDarray = hisProfile.profileSnapshot.data()
             .matches;
-          if (hisMatches) {
-            hisMatches.push(myProfile.ID);
-          } else {
-            hisMatches = [myProfile.ID];
-          }
+
+          hisMatches = this.updateMatches(hisMatches, myProfile.ID);
 
           batch.update(hisProfile.profileSnapshot.ref, { matches: hisMatches });
 
-          const hisMatchData_query = await this.get.matchData(
+          const hisMatchDataQuery = await this.get.matchData(
             [["userID", "==", hisProfile.ID]],
             1
           );
-          const hisMatchData = hisMatchData_query.docs[0];
+          const hisMatchData = hisMatchDataQuery.docs[0];
 
           batch.update(hisMatchData.ref, { matches: hisMatches });
         })
@@ -182,11 +195,18 @@ export class ConversationGeneratorComponent {
     }
   }
 
+  /**
+   * Generates a given number of message documents between the singular user and the group of users provided, directly to the database.
+   * @param {profileObject} myProfile - Object that contains the user's ID and a snapshot of his profile data.
+   * @param {profileObject[]} theirProfiles - Array of objects that each contains the user's ID and a snapshot of his profile data.
+   * @param {number} numberOfMessages - The number of messages to generate per conversation.
+   * @return {Promise<void>}
+   */
   private async generateMessages(
     myProfile: profileObject,
     theirProfiles: profileObject[],
     numberOfMessages: number
-  ) {
+  ): Promise<void> {
     try {
       const batch = this.environment.activeDatabase.firestore().batch();
       await Promise.all(
@@ -207,7 +227,7 @@ export class ConversationGeneratorComponent {
           const conversation = conversation_query.docs[0];
 
           await Promise.all(
-            Array.from({ length: 5 }, async () => {
+            Array.from({ length: numberOfMessages }, async () => {
               const message = this.newMessage(myProfile, hisProfile);
               const messageDocumentRef = this.get.conversationCollection
                 .doc(conversation.id)
@@ -228,6 +248,12 @@ export class ConversationGeneratorComponent {
     }
   }
 
+  /**
+   * Creates and returns a new conversation document between the two given users, filled with fake data.
+   * @param {profileObject} user1 - Object that contains the user's ID and a snapshot of his profile data.
+   * @param {profileObject} user2 - Object that contains the user's ID and a snapshot of his profile data.
+   * @return {message} Returns the conversation data as an object
+   */
   private newConversation(
     user1: profileObject,
     user2: profileObject
@@ -256,6 +282,12 @@ export class ConversationGeneratorComponent {
     return conversationObject;
   }
 
+  /**
+   * Creates and returns a new message document between the two given users, filled with fake data.
+   * @param {profileObject} user1 - Object that contains the user's ID and a snapshot of his profile data.
+   * @param {profileObject} user2 - Object that contains the user's ID and a snapshot of his profile data.
+   * @return {message} Returns the message data as an object
+   */
   private newMessage(user1: profileObject, user2: profileObject): message {
     if (!user1 || !user2) {
       console.log("Can't create new message.");
@@ -280,7 +312,17 @@ export class ConversationGeneratorComponent {
     return message;
   }
 
-  private async updateLastMessage(myID: string, theirIDs: string[]) {
+  /**
+   * Updates the "lastMessage" field directly in the database of each conversation document
+   * that the singular given user (who's ID is myID) has with the other given users (theirIDs).
+   * @param {string} myID - The ID of the user (a.k.a name of his/her profile document)
+   * @param {string[]} theirIDs - The IDs of users that have a conversation document with the singular user
+   * @return {Promise<void>} Returns a promise containing nothing
+   */
+  private async updateLastMessage(
+    myID: string,
+    theirIDs: string[]
+  ): Promise<void> {
     try {
       const batch = this.environment.activeDatabase.firestore().batch();
       await Promise.all(
@@ -307,5 +349,24 @@ export class ConversationGeneratorComponent {
     } catch (e) {
       throw new Error(`Error during updateLastMessage: ${e}`);
     }
+  }
+
+  /**
+   * Updates the array of matches by adding the new match to it.
+   * The array is left unchanged if the new match ID is already in the array of matches.
+   * If the array doesn't exist, the new ID is returned in an array.
+   * @param {string[]} matchesArray - An array of IDs of the users whom have matched with one.
+   * @param {string} newMatch - The ID of a new match.
+   * @return {string[]} The updated array of IDs of one's matches
+   */
+  private updateMatches(
+    matchesArray: string[] | undefined,
+    newMatch: string
+  ): string[] {
+    if (!matchesArray) return [newMatch];
+
+    if (matchesArray.includes(newMatch)) return matchesArray;
+
+    return matchesArray.concat(newMatch);
   }
 }
