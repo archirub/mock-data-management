@@ -48,12 +48,13 @@ export class ConversationGeneratorComponent {
   ): Promise<void> {
     numberOfConversations = numberOfConversations ? +numberOfConversations : 10;
     numberOfMessages = numberOfMessages ? +numberOfMessages : 10;
-    if (!userID || !numberOfConversations) {
+    if (!userID) {
       return console.error("Info incomplete");
     }
 
     const myID = userID;
 
+    // FETCHING TARGET DOC PROFILE
     const myProfile = await this.get.profile(myID);
     if (!myProfile.exists) {
       return console.error("The user provided doesn't exist.");
@@ -64,6 +65,7 @@ export class ConversationGeneratorComponent {
       );
     }
 
+    // FETCHING PROFILES OF FUTURE CONVERSATIONAL USERS
     const theirProfiles_query = await this.get.profiles(
       [["hasMatchDocument", "==", true]],
       numberOfConversations + 1
@@ -78,19 +80,22 @@ export class ConversationGeneratorComponent {
 
     const realNumberOfConversations: number = theirProfiles.length;
 
+    // FETCHING CONVERSATION DOCUMENTS OF TARGET USER
     const myConversations = await this.get.conversations([
       [`userIDs.${myID}`, "==", true],
     ]);
 
+    // FINDING THE ID OF ALL USERS WHO HAVE A CONVERSATION DOC WITH TARGET
     const usersInMyConversations_ids: string[] = [];
     for (let myConversation of myConversations.docs) {
       for (let hisProfile of theirProfiles) {
-        if (myConversation.data[`userIDs.${hisProfile.id}`] === true) {
+        if (myConversation.data()[`userIDs.${hisProfile.id}`] === true) {
           usersInMyConversations_ids.push(hisProfile.id);
         }
       }
     }
 
+    // FINDING ID OF ALL USERS WHO DON'T IN ORDER TO CREATE ONE FOR THEM
     const usersNotInMyConversations_ids: string[] = theirProfiles
       .map((hisProfile) => hisProfile.id)
       .filter(
@@ -162,12 +167,14 @@ export class ConversationGeneratorComponent {
       await Promise.all(
         theirProfiles.map(async (hisProfile) => {
           const conversation = this.newConversation(myProfile, hisProfile);
+
           const conversationRef = this.get.conversationCollection.doc();
           batch.set(conversationRef, conversation);
 
           myMatches = this.updateMatches(myMatches, hisProfile.ID);
 
           batch.update(myProfile.profileSnapshot.ref, { matches: myMatches });
+
           batch.update(myMatchData.ref, { matches: myMatches });
 
           let hisMatches: null | IDarray = hisProfile.profileSnapshot.data()
@@ -364,9 +371,6 @@ export class ConversationGeneratorComponent {
     newMatch: string
   ): string[] {
     if (!matchesArray) return [newMatch];
-
-    if (matchesArray.includes(newMatch)) return matchesArray;
-
-    return matchesArray.concat(newMatch);
+    return [...new Set(...matchesArray, ...newMatch)];
   }
 }

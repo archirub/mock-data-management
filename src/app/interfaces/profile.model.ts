@@ -21,6 +21,12 @@ export interface physicalFeatures {
   skinTone: string;
 }
 
+export interface searchFeatures {
+  university: string | null;
+  course: string | null;
+  societies: societies | null;
+}
+
 export interface societies {
   [society: string]: true;
 }
@@ -40,10 +46,12 @@ export interface userPictures {
 export interface matchObject {
   userID: string;
   PI: number;
-  socialFeatures: socialFeatures;
-  physicalFeatures: physicalFeatures;
+  // socialFeatures: socialFeatures;
+  // physicalFeatures: physicalFeatures;
+  searchFeatures: searchFeatures;
   bannedUsers: IDarray;
   likedUsers: IDarray;
+  matches: IDarray;
 }
 export interface profileObject {
   ID: string;
