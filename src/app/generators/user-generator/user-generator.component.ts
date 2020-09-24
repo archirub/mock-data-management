@@ -10,6 +10,7 @@ import {
   userPictures,
   societies,
 } from "../../interfaces/profile.model";
+import { getAttrsForDirectiveMatching } from "@angular/compiler/src/render3/view/util";
 
 @Component({
   selector: "app-user-generator",
@@ -41,21 +42,32 @@ export class UserGeneratorComponent {
     private name: NameService
   ) {}
 
-  public onGenerateUsers(
+  public async onGenerateUsers(
     amount: number,
     database: any = this.environment.activeDatabase.firestore()
-  ): void {
+  ): Promise<void> {
     if (!amount) {
       return console.error("You must enter a valid quantity of user profiles");
     }
 
-    // Generating "amount" number of profiles
-    Array.from({ length: amount }, () => {
-      database
-        .collection(this.name.profileCollection)
-        .add(this.newUser())
-        .catch((err) => console.log(err));
-    });
+    // await this.environment.activeDatabase.auth()
+    const getUIDs = this.environment.activeDatabase
+      .functions("europe-west2")
+      .httpsCallable("getUIDs");
+    const userIDsQuery = await getUIDs({ amount: amount });
+    const userIDs: string[] = userIDsQuery.data;
+    console.log(userIDs);
+
+    // Generating profiles
+    await Promise.all(
+      userIDs.map(async (userID) => {
+        await database
+          .collection(this.name.profileCollection)
+          .doc(userID)
+          .set(this.newUser())
+          .catch((err) => console.error(err));
+      })
+    );
     console.log(`${amount} user profiles were added to the database.`);
   }
 

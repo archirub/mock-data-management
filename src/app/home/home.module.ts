@@ -10,6 +10,7 @@ import { TestGeneratorComponent } from "./../generators/test-generator/test-gene
 import { UserGeneratorComponent } from "./../generators/user-generator/user-generator.component";
 import { MatchGeneratorComponent } from "./../generators/match-generator/match-generator.component";
 import { ConversationGeneratorComponent } from "./../generators/conversation-generator/conversation-generator.component";
+import { AccountGeneratorComponent } from "../generators/account-generator/account-generator.component";
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, HomePageRoutingModule],
@@ -19,6 +20,7 @@ import { ConversationGeneratorComponent } from "./../generators/conversation-gen
     TestGeneratorComponent,
     ConversationGeneratorComponent,
     MatchGeneratorComponent,
+    AccountGeneratorComponent,
   ],
 })
 export class HomePageModule {}

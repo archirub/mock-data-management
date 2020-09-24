@@ -155,14 +155,15 @@ export class ConversationGeneratorComponent {
       const batch = this.environment.activeDatabase.firestore().batch();
       let myMatches: null | IDarray = myProfile.profileSnapshot.data().matches;
 
-      const myMatchData_query = await this.get.matchData(
-        [["userID", "==", myProfile.ID]],
-        1
-      );
-      if (myMatchData_query.empty) {
+      const myMatchData = await this.environment.activeDatabase
+        .firestore()
+        .collection(this.name.matchCollection)
+        .doc(myProfile.ID)
+        .get();
+
+      if (!myMatchData.exists) {
         console.error("No matchData document was found.");
       }
-      const myMatchData = myMatchData_query.docs[0];
 
       await Promise.all(
         theirProfiles.map(async (hisProfile) => {
@@ -184,11 +185,11 @@ export class ConversationGeneratorComponent {
 
           batch.update(hisProfile.profileSnapshot.ref, { matches: hisMatches });
 
-          const hisMatchDataQuery = await this.get.matchData(
-            [["userID", "==", hisProfile.ID]],
-            1
-          );
-          const hisMatchData = hisMatchDataQuery.docs[0];
+          const hisMatchData = await this.environment.activeDatabase
+            .firestore()
+            .collection(this.name.matchCollection)
+            .doc(hisProfile.ID)
+            .get();
 
           batch.update(hisMatchData.ref, { matches: hisMatches });
         })

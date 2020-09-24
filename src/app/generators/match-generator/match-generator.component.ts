@@ -87,8 +87,8 @@ export class MatchGeneratorComponent {
       const doc = this.newMatch(userID, socialFeatures[index]);
       const matches = userRefs.docs.filter((doc) => doc.id === userID)[0].data()
         .matches;
-      doc.bannedUsers = matches;
-      doc.matches = matches;
+      doc.matchObject.bannedUsers = matches;
+      doc.matchObject.matches = matches;
 
       return doc;
     });
@@ -100,8 +100,8 @@ export class MatchGeneratorComponent {
       const matchRef = this.databaseService.activeDatabase
         .firestore()
         .collection(this.name.matchCollection)
-        .doc();
-      batch.set(matchRef, match);
+        .doc(match.userID);
+      batch.set(matchRef, match.matchObject);
     });
 
     // Setting hasMatchDocument to true in each user's profile
@@ -150,7 +150,7 @@ export class MatchGeneratorComponent {
     ];
 
     const matchObject: matchObject = {
-      userID: userID_,
+      // userID: userID_,
       PI: PI,
       // socialFeatures: socialFeatures_,
       // physicalFeatures: {
@@ -168,6 +168,6 @@ export class MatchGeneratorComponent {
       matches: [],
     };
 
-    return matchObject;
+    return { matchObject, userID: userID_ };
   }
 }

@@ -10,6 +10,8 @@ import { AngularFireModule } from "@angular/fire";
 import { AngularFirestoreModule } from "@angular/fire/firestore";
 import { environment } from "../environments/environment";
 
+import { AngularFireFunctionsModule, REGION } from "@angular/fire/functions";
+
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
 
@@ -22,11 +24,13 @@ import { AppRoutingModule } from "./app-routing.module";
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
+    AngularFireFunctionsModule,
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: REGION, useValue: "europe-west2" },
   ],
   bootstrap: [AppComponent],
 })

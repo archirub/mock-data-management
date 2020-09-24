@@ -44,7 +44,7 @@ export interface userPictures {
 }
 
 export interface matchObject {
-  userID: string;
+  // userID: string;
   PI: number;
   // socialFeatures: socialFeatures;
   // physicalFeatures: physicalFeatures;
