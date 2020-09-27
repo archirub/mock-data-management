@@ -292,13 +292,17 @@ export class ConversationGeneratorComponent {
       messages.push(this.newMessage(user1, user2));
     });
 
+    const lastInteracted: Date = this.getLastMessageTime(messages);
+
     const conversationObject: conversation = {
+      uids: [user1.ID, user2.ID],
       userSnippets: [
         { uid: user1.ID, name: user1Name, picture: user1Picture },
         { uid: user2.ID, name: user2Name, picture: user2Picture },
       ],
       messages,
       batchVolume: 0,
+      lastInteracted,
     };
 
     return conversationObject;
@@ -318,8 +322,8 @@ export class ConversationGeneratorComponent {
 
     const senderID = Math.round(Math.random()) === 1 ? user1.ID : user2.ID;
     // SHOULD TIME BE RANDOM OR BE NEW DATE.NOW
-    // const time: Date = faker.date.recent(10);
-    const time: Date = new Date();
+    const time: Date = faker.date.recent(10);
+    // const time: Date = new Date();
     const content = faker.lorem.sentence();
     const reaction: messageReaction =
       MessageReaction[Math.floor(Math.random() * MessageReaction.length)];
@@ -395,5 +399,15 @@ export class ConversationGeneratorComponent {
     } else {
       return uid2.concat(uid1);
     }
+  }
+
+  private getLastMessageTime(messages: message[]): Date {
+    let latestMessage: message = messages[0];
+    messages.forEach((message) => {
+      if (message.time.getTime() > latestMessage.time.getTime()) {
+        latestMessage = message;
+      }
+    });
+    return latestMessage.time;
   }
 }

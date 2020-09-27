@@ -1,5 +1,3 @@
-import { IDmap } from "./profile.model";
-
 // interface userProfileSnipets {
 //   [userID: string]: { name: string; picture: string };
 // }
@@ -17,9 +15,11 @@ export interface userSnippet {
   picture: string;
 }
 export interface conversation {
+  uids: string[];
   userSnippets: userSnippet[];
   messages: message[];
   batchVolume: number;
+  lastInteracted: Date;
 }
 
 export interface message {
