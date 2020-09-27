@@ -11,7 +11,6 @@ import {
   message,
   messageReaction,
   MessageReaction,
-  messageStatus,
 } from "./../../interfaces/conversation.model";
 import { IDarray, profileObject } from "../../interfaces/profile.model";
 
@@ -128,17 +127,18 @@ export class ConversationGeneratorComponent {
 
     await this.generateConversations(
       myProfileObject,
-      usersNotInMyConversations_objectArray
-    );
-
-    await this.generateMessages(
-      myProfileObject,
-      theirProfileObjects,
+      usersNotInMyConversations_objectArray,
       numberOfMessages
     );
 
-    const theirIDs = theirProfiles.map((hisProfile) => hisProfile.id);
-    await this.updateLastMessage(myID, theirIDs);
+    // await this.generateMessages(
+    //   myProfileObject,
+    //   theirProfileObjects,
+    //   numberOfMessages
+    // );
+
+    // const theirIDs = theirProfiles.map((hisProfile) => hisProfile.id);
+    // await this.updateLastMessage(myID, theirIDs);
   }
 
   /**
@@ -149,8 +149,10 @@ export class ConversationGeneratorComponent {
    */
   private async generateConversations(
     myProfile: profileObject,
-    theirProfiles: profileObject[]
+    theirProfiles: profileObject[],
+    messageAmount: number
   ): Promise<void> {
+    messageAmount = +messageAmount;
     try {
       const batch = this.environment.activeDatabase.firestore().batch();
       let myMatches: null | IDarray = myProfile.profileSnapshot.data().matches;
@@ -167,9 +169,19 @@ export class ConversationGeneratorComponent {
 
       await Promise.all(
         theirProfiles.map(async (hisProfile) => {
-          const conversation = this.newConversation(myProfile, hisProfile);
+          const conversation = this.newConversation(
+            myProfile,
+            hisProfile,
+            messageAmount
+          );
 
-          const conversationRef = this.get.conversationCollection.doc();
+          const conversationID: string = this.getConversationID(
+            myProfile.ID,
+            hisProfile.ID
+          );
+          const conversationRef = this.get.conversationCollection.doc(
+            conversationID
+          );
           batch.set(conversationRef, conversation);
 
           myMatches = this.updateMatches(myMatches, hisProfile.ID);
@@ -210,51 +222,51 @@ export class ConversationGeneratorComponent {
    * @param {number} numberOfMessages - The number of messages to generate per conversation.
    * @return {Promise<void>}
    */
-  private async generateMessages(
-    myProfile: profileObject,
-    theirProfiles: profileObject[],
-    numberOfMessages: number
-  ): Promise<void> {
-    try {
-      const batch = this.environment.activeDatabase.firestore().batch();
-      await Promise.all(
-        theirProfiles.map(async (hisProfile) => {
-          const conversation_query = await this.get.conversations(
-            [
-              [`userIDs.${myProfile.ID}`, "==", true],
-              [`userIDs.${hisProfile.ID}`, "==", true],
-            ],
-            1
-          );
+  // private async generateMessages(
+  //   myProfile: profileObject,
+  //   theirProfiles: profileObject[],
+  //   numberOfMessages: number
+  // ): Promise<void> {
+  //   try {
+  //     const batch = this.environment.activeDatabase.firestore().batch();
+  //     await Promise.all(
+  //       theirProfiles.map(async (hisProfile) => {
+  //         const conversation_query = await this.get.conversations(
+  //           [
+  //             [`userIDs.${myProfile.ID}`, "==", true],
+  //             [`userIDs.${hisProfile.ID}`, "==", true],
+  //           ],
+  //           1
+  //         );
 
-          if (conversation_query.empty) {
-            console.error(
-              `No conversation document found between ${myProfile.ID} and ${hisProfile.ID}.`
-            );
-          }
-          const conversation = conversation_query.docs[0];
+  //         if (conversation_query.empty) {
+  //           console.error(
+  //             `No conversation document found between ${myProfile.ID} and ${hisProfile.ID}.`
+  //           );
+  //         }
+  //         const conversation = conversation_query.docs[0];
 
-          await Promise.all(
-            Array.from({ length: numberOfMessages }, async () => {
-              const message = this.newMessage(myProfile, hisProfile);
-              const messageDocumentRef = this.get.conversationCollection
-                .doc(conversation.id)
-                .collection(this.name.messageCollection)
-                .doc();
+  //         await Promise.all(
+  //           Array.from({ length: numberOfMessages }, async () => {
+  //             const message = this.newMessage(myProfile, hisProfile);
+  //             const messageDocumentRef = this.get.conversationCollection
+  //               .doc(conversation.id)
+  //               .collection(this.name.messageCollection)
+  //               .doc();
 
-              batch.set(messageDocumentRef, message);
-            })
-          );
-        })
-      );
+  //             batch.set(messageDocumentRef, message);
+  //           })
+  //         );
+  //       })
+  //     );
 
-      await batch.commit();
+  //     await batch.commit();
 
-      console.log("Message creation complete.");
-    } catch (e) {
-      throw new Error(`Error during generateMessages: ${e}`);
-    }
-  }
+  //     console.log("Message creation complete.");
+  //   } catch (e) {
+  //     throw new Error(`Error during generateMessages: ${e}`);
+  //   }
+  // }
 
   /**
    * Creates and returns a new conversation document between the two given users, filled with fake data.
@@ -264,27 +276,29 @@ export class ConversationGeneratorComponent {
    */
   private newConversation(
     user1: profileObject,
-    user2: profileObject
+    user2: profileObject,
+    messageAmount: number
   ): conversation {
     if (!user1 || !user2) return;
+    const messageCount = messageAmount ? +messageAmount : 10;
 
     const user1Name: string = user1.profileSnapshot.data().firstName;
     const user1Picture: string = user1.profileSnapshot.data().pictures[0];
     const user2Name: string = user2.profileSnapshot.data().firstName;
     const user2Picture: string = user2.profileSnapshot.data().pictures[0];
-    const lastMessage: string = faker.lorem.sentence();
+    let messages: message[] = [];
+
+    Array.from({ length: 10 }).forEach(() => {
+      messages.push(this.newMessage(user1, user2));
+    });
 
     const conversationObject: conversation = {
-      userIDs: { [user1.ID]: true, [user2.ID]: true },
-      [user1.ID]: {
-        name: user1Name,
-        picture: user1Picture,
-      },
-      [user2.ID]: {
-        name: user2Name,
-        picture: user2Picture,
-      },
-      lastMessage: lastMessage,
+      userSnippets: [
+        { uid: user1.ID, name: user1Name, picture: user1Picture },
+        { uid: user2.ID, name: user2Name, picture: user2Picture },
+      ],
+      messages,
+      batchVolume: 0,
     };
 
     return conversationObject;
@@ -303,18 +317,18 @@ export class ConversationGeneratorComponent {
     }
 
     const senderID = Math.round(Math.random()) === 1 ? user1.ID : user2.ID;
-    const time: Date = faker.date.recent(10);
+    // SHOULD TIME BE RANDOM OR BE NEW DATE.NOW
+    // const time: Date = faker.date.recent(10);
+    const time: Date = new Date();
     const content = faker.lorem.sentence();
     const reaction: messageReaction =
       MessageReaction[Math.floor(Math.random() * MessageReaction.length)];
-    const status: messageStatus = { sent: true, received: false, seen: false };
 
     const message: message = {
       senderID,
       time,
       content,
       reaction,
-      status,
     };
 
     return message;
@@ -327,37 +341,37 @@ export class ConversationGeneratorComponent {
    * @param {string[]} theirIDs - The IDs of users that have a conversation document with the singular user
    * @return {Promise<void>} Returns a promise containing nothing
    */
-  private async updateLastMessage(
-    myID: string,
-    theirIDs: string[]
-  ): Promise<void> {
-    try {
-      const batch = this.environment.activeDatabase.firestore().batch();
-      await Promise.all(
-        theirIDs.map(async (hisID) => {
-          const conversationQuery = await this.get.conversations([
-            [`userIDs.${myID}`, "==", true],
-            [`userIDs.${hisID}`, "==", true],
-          ]);
-          const conversation = conversationQuery.docs[0];
+  // private async updateLastMessage(
+  //   myID: string,
+  //   theirIDs: string[]
+  // ): Promise<void> {
+  //   try {
+  //     const batch = this.environment.activeDatabase.firestore().batch();
+  //     await Promise.all(
+  //       theirIDs.map(async (hisID) => {
+  //         const conversationQuery = await this.get.conversations([
+  //           [`userIDs.${myID}`, "==", true],
+  //           [`userIDs.${hisID}`, "==", true],
+  //         ]);
+  //         const conversation = conversationQuery.docs[0];
 
-          const lastMessageRef = await this.get.conversationCollection
-            .doc(conversation.id)
-            .collection(this.name.messageCollection)
-            .orderBy("time", "desc")
-            .limit(1)
-            .get();
-          const lastMessage = lastMessageRef.docs[0].data()["content"];
+  //         const lastMessageRef = await this.get.conversationCollection
+  //           .doc(conversation.id)
+  //           .collection(this.name.messageCollection)
+  //           .orderBy("time", "desc")
+  //           .limit(1)
+  //           .get();
+  //         const lastMessage = lastMessageRef.docs[0].data()["content"];
 
-          batch.update(conversation.ref, { lastMessage: lastMessage });
-        })
-      );
-      await batch.commit();
-      console.log("Last message successfully updated.");
-    } catch (e) {
-      throw new Error(`Error during updateLastMessage: ${e}`);
-    }
-  }
+  //         batch.update(conversation.ref, { lastMessage: lastMessage });
+  //       })
+  //     );
+  //     await batch.commit();
+  //     console.log("Last message successfully updated.");
+  //   } catch (e) {
+  //     throw new Error(`Error during updateLastMessage: ${e}`);
+  //   }
+  // }
 
   /**
    * Updates the array of matches by adding the new match to it.
@@ -373,5 +387,13 @@ export class ConversationGeneratorComponent {
   ): string[] {
     if (!matchesArray) return [newMatch];
     return [...new Set(...matchesArray, ...newMatch)];
+  }
+
+  private getConversationID(uid1: string, uid2: string): string {
+    if (uid1 < uid2) {
+      return uid1.concat(uid2);
+    } else {
+      return uid2.concat(uid1);
+    }
   }
 }

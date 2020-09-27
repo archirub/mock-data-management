@@ -1,25 +1,36 @@
 import { IDmap } from "./profile.model";
 
-interface userProfileSnipets {
-  [userID: string]: { name: string; picture: string };
-}
+// interface userProfileSnipets {
+//   [userID: string]: { name: string; picture: string };
+// }
 
-interface conversationExtraFields {
-  userIDs: IDmap;
-  lastMessage: string;
-}
+// interface conversationExtraFields {
+//   userIDs: IDmap;
+//   lastMessage: string;
+// }
 
-export type conversation = userProfileSnipets | conversationExtraFields;
+// export type conversation = userProfileSnipets | conversationExtraFields;
+
+export interface userSnippet {
+  uid: string;
+  name: string;
+  picture: string;
+}
+export interface conversation {
+  userSnippets: userSnippet[];
+  messages: message[];
+  batchVolume: number;
+}
 
 export interface message {
   senderID: string;
   time: Date;
   content: string;
   reaction: messageReaction;
-  status: messageStatus;
 }
 
 export type messageReaction =
+  | "null"
   | "love"
   | "angry"
   | "laugh"
@@ -28,6 +39,7 @@ export type messageReaction =
   | "thumbDown";
 
 export const MessageReaction: messageReaction[] = [
+  "null",
   "love",
   "angry",
   "laugh",
@@ -35,9 +47,3 @@ export const MessageReaction: messageReaction[] = [
   "thumbUp",
   "thumbDown",
 ];
-
-export interface messageStatus {
-  sent: Boolean;
-  received: Boolean;
-  seen: Boolean;
-}
