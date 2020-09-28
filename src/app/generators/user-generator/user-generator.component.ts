@@ -7,10 +7,11 @@ import * as faker from "faker";
 
 import {
   profile,
+  searchCriteriaOptions,
+  SocietyCategory,
+  University,
   userPictures,
-  societies,
 } from "../../interfaces/profile.model";
-import { getAttrsForDirectiveMatching } from "@angular/compiler/src/render3/view/util";
 
 @Component({
   selector: "app-user-generator",
@@ -92,16 +93,16 @@ export class UserGeneratorComponent {
 
     //Societies
     //Selecting just one society right now, should be adjusted to something like 1 to 5 different ones
-    const societies: societies = {
-      [this.societiesList[
-        Math.floor(Math.random() * this.societiesList.length)
-      ]]: true,
-    };
+    const societies: SocietyCategory[] = [
+      searchCriteriaOptions.societyCategory[
+        Math.floor(Math.random() * searchCriteriaOptions.societyCategory.length)
+      ],
+    ] as SocietyCategory[];
 
     //University
-    const university: string = this.UniverstiesList[
-      Math.floor(Math.random() * this.UniverstiesList.length)
-    ];
+    const university: University = searchCriteriaOptions.university[
+      Math.floor(Math.random() * searchCriteriaOptions.university.length)
+    ] as University;
 
     //Biography
     const biography: string = faker.lorem.sentence(
@@ -116,9 +117,9 @@ export class UserGeneratorComponent {
       pictures: pictures,
       biography: biography,
       socialFeatures: {
-        university: university,
-        course: course,
-        societies: societies,
+        university,
+        course,
+        societies,
       },
       matches: [],
       hasMatchDocument: false,

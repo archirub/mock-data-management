@@ -6,7 +6,14 @@ import { NameService } from "src/app/services/name.service";
 import {
   socialFeatures,
   matchObject,
-  societies,
+  searchCriteriaOptions,
+  AgeRange,
+  AreaOfStudy,
+  Interest,
+  SearchFeatures,
+  SocietyCategory,
+  University,
+  Location,
 } from "../../interfaces/profile.model";
 
 @Component({
@@ -15,34 +22,6 @@ import {
   styleUrls: ["./match-generator.component.scss"],
 })
 export class MatchGeneratorComponent {
-  private skinToneList: string[] = [
-    "light",
-    "medium-light",
-    "medium",
-    "medium-dark",
-    "dark",
-  ];
-  private heightList: string[] = ["short", "average", "tall"];
-  private hairColorList: string[] = ["blonde", "brown", "red", "black"];
-  private coursesList: string[] = [
-    "Physics",
-    "Mathematics",
-    "Politics",
-    "Computer Science",
-    "Liberal Arts",
-    "Arts & Sciences",
-  ];
-
-  private societiesList: string[] = [
-    "Debate Society",
-    "Basketball Society",
-    "Football Society",
-    "3D Modelling Society",
-    "Anime Society",
-  ];
-
-  private UniverstiesList: string[] = ["UCL"];
-
   constructor(
     private databaseService: EnvironmentService,
     private name: NameService
@@ -120,54 +99,52 @@ export class MatchGeneratorComponent {
       .catch((err) => console.error(err.message));
   }
 
-  private newMatch(userID_: string, socialFeatures_: socialFeatures) {
+  private newMatch(userID: string, socialFeatures_: socialFeatures) {
     const PI: number = Math.random();
-    // const height: string = this.heightList[
-    //   Math.floor(Math.random() * this.heightList.length)
-    // ];
-    // const hairColor: string = this.hairColorList[
-    //   Math.floor(Math.random() * this.hairColorList.length)
-    // ];
-    // const skinTone: string = this.skinToneList[
-    //   Math.floor(Math.random() * this.skinToneList.length)
-    // ];
-    //Societies
-    //Selecting just one society right now, should be adjusted to something like 1 to 5 different ones
-    const societies: societies = {
-      [this.societiesList[
-        Math.floor(Math.random() * this.societiesList.length)
-      ]]: true,
-    };
 
     //University
-    const university: string = this.UniverstiesList[
-      Math.floor(Math.random() * this.UniverstiesList.length)
-    ];
+    const university: University = searchCriteriaOptions.university[
+      Math.floor(Math.random() * searchCriteriaOptions.university.length)
+    ] as University;
 
-    //Course
-    const course: string = this.coursesList[
-      Math.floor(Math.random() * this.coursesList.length)
-    ];
+    const areaOfStudy: AreaOfStudy = searchCriteriaOptions.areaOfStudy[
+      Math.floor(Math.random() * searchCriteriaOptions.areaOfStudy.length)
+    ] as AreaOfStudy;
+
+    const ageRange: AgeRange = searchCriteriaOptions.ageRange[
+      Math.floor(Math.random() * searchCriteriaOptions.ageRange.length)
+    ] as AgeRange;
+
+    const societyCategory: SocietyCategory = searchCriteriaOptions
+      .societyCategory[
+      Math.floor(Math.random() * searchCriteriaOptions.societyCategory.length)
+    ] as SocietyCategory;
+
+    const interest: Interest = searchCriteriaOptions.interest[
+      Math.floor[Math.random() * searchCriteriaOptions.interest.length]
+    ] as Interest;
+
+    const location: Location = searchCriteriaOptions.location[
+      Math.floor[Math.random() * searchCriteriaOptions.location.length]
+    ] as Location;
+
+    const searchFeatures: SearchFeatures = {
+      university,
+      areaOfStudy,
+      ageRange,
+      societyCategory,
+      interest,
+      location,
+    };
 
     const matchObject: matchObject = {
-      // userID: userID_,
-      PI: PI,
-      // socialFeatures: socialFeatures_,
-      // physicalFeatures: {
-      //   height: height,
-      //   hairColor: hairColor,
-      //   skinTone: skinTone,
-      // },
-      searchFeatures: {
-        university: university,
-        course: course,
-        societies: societies,
-      },
+      PI,
+      searchFeatures,
       bannedUsers: [],
       likedUsers: [],
       matches: [],
     };
 
-    return { matchObject, userID: userID_ };
+    return { matchObject, userID };
   }
 }
