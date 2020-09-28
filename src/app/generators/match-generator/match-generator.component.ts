@@ -121,11 +121,11 @@ export class MatchGeneratorComponent {
     ] as SocietyCategory;
 
     const interest: Interest = searchCriteriaOptions.interest[
-      Math.floor[Math.random() * searchCriteriaOptions.interest.length]
+      Math.floor(Math.random() * searchCriteriaOptions.interest.length)
     ] as Interest;
 
     const location: Location = searchCriteriaOptions.location[
-      Math.floor[Math.random() * searchCriteriaOptions.location.length]
+      Math.floor(Math.random() * searchCriteriaOptions.location.length)
     ] as Location;
 
     const searchFeatures: SearchFeatures = {

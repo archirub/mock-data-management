@@ -11,9 +11,9 @@ export class CreateService {
     .firestore()
     .collection(this.name.profileCollection);
 
-  public conversationCollection = this.environment.activeDatabase
+  public chatCollection = this.environment.activeDatabase
     .firestore()
-    .collection(this.name.conversationCollection);
+    .collection(this.name.chatCollection);
 
   public matchCollection = this.environment.activeDatabase
     .firestore()

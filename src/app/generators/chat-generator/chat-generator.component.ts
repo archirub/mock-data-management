@@ -1,25 +1,25 @@
 import { Component } from "@angular/core";
 
 import { EnvironmentService } from "../../services/environment.service";
-import { NameService } from "./../../services/name.service";
+import { NameService } from "../../services/name.service";
 import { GetService } from "src/app/services/get.service";
 
 import * as faker from "faker";
 
 import {
-  conversation,
+  chat,
   message,
   messageReaction,
   MessageReaction,
-} from "./../../interfaces/conversation.model";
+} from "./../../interfaces/chat.model";
 import { IDarray, profileObject } from "../../interfaces/profile.model";
 
 @Component({
-  selector: "app-conversation-generator",
-  templateUrl: "./conversation-generator.component.html",
-  styleUrls: ["./conversation-generator.component.scss"],
+  selector: "app-chat-generator",
+  templateUrl: "./chat-generator.component.html",
+  styleUrls: ["./chat-generator.component.scss"],
 })
-export class ConversationGeneratorComponent {
+export class ChatGeneratorComponent {
   constructor(
     private environment: EnvironmentService,
     private name: NameService,
@@ -27,25 +27,25 @@ export class ConversationGeneratorComponent {
   ) {}
 
   /**
-   * Generates a given number of messages in a given number of conversations, for a given user.
-   * @summary The function firsts fetches a set of random user profiles from the database, one for each conversation.
-   * The set is randomly chosen as it is impossible to fetch only users who don't yet have a conversation document with
+   * Generates a given number of messages in a given number of chats, for a given user.
+   * @summary The function firsts fetches a set of random user profiles from the database, one for each chat.
+   * The set is randomly chosen as it is impossible to fetch only users who don't yet have a chat document with
    * the given user, due to the nature of the database (noSQL/firestore).
-   * For the users fetched who already have a conversation document with the given user, that document will just be
+   * For the users fetched who already have a chat document with the given user, that document will just be
    * filled with additional message documents.
-   * For those who don't, a conversation document is first created between them and the given user, before being filled
+   * For those who don't, a chat document is first created between them and the given user, before being filled
    * with message documents.
-   * @param {string} userID - The ID of the user for which conversation documents are generated
-   * @param {number} numberOfConversations - The number of conversation documents to generate.
-   * @param {number} numberOfMessages - The number of message documents to generate per conversation.
+   * @param {string} userID - The ID of the user for which chat documents are generated
+   * @param {number} numberOfChats - The number of chat documents to generate.
+   * @param {number} numberOfMessages - The number of message documents to generate per chat.
    * @return {Promise<void>}
    */
   public async onClickGenerate(
     userID: string,
-    numberOfConversations: number,
+    numberOfChats: number,
     numberOfMessages: number
   ): Promise<void> {
-    numberOfConversations = numberOfConversations ? +numberOfConversations : 10;
+    numberOfChats = numberOfChats ? +numberOfChats : 10;
     numberOfMessages = numberOfMessages ? +numberOfMessages : 10;
     if (!userID) {
       return console.error("Info incomplete");
@@ -67,7 +67,7 @@ export class ConversationGeneratorComponent {
     // FETCHING PROFILES OF FUTURE CONVERSATIONAL USERS
     const theirProfiles_query = await this.get.profiles(
       [["hasMatchDocument", "==", true]],
-      numberOfConversations + 1
+      numberOfChats + 1
     );
     const theirProfiles: firebase.firestore.QueryDocumentSnapshot<
       firebase.firestore.DocumentData
@@ -77,39 +77,35 @@ export class ConversationGeneratorComponent {
       1
     );
 
-    const realNumberOfConversations: number = theirProfiles.length;
+    const realNumberOfChats: number = theirProfiles.length;
 
     // FETCHING CONVERSATION DOCUMENTS OF TARGET USER
-    const myConversations = await this.get.conversations([
-      [`userIDs.${myID}`, "==", true],
-    ]);
+    const myChats = await this.get.chats([[`userIDs.${myID}`, "==", true]]);
 
     // FINDING THE ID OF ALL USERS WHO HAVE A CONVERSATION DOC WITH TARGET
-    const usersInMyConversations_ids: string[] = [];
-    for (let myConversation of myConversations.docs) {
+    const usersInMyChats_ids: string[] = [];
+    for (let myChat of myChats.docs) {
       for (let hisProfile of theirProfiles) {
-        if (myConversation.data()[`userIDs.${hisProfile.id}`] === true) {
-          usersInMyConversations_ids.push(hisProfile.id);
+        if (myChat.data()[`userIDs.${hisProfile.id}`] === true) {
+          usersInMyChats_ids.push(hisProfile.id);
         }
       }
     }
 
     // FINDING ID OF ALL USERS WHO DON'T IN ORDER TO CREATE ONE FOR THEM
-    const usersNotInMyConversations_ids: string[] = theirProfiles
+    const usersNotInMyChats_ids: string[] = theirProfiles
       .map((hisProfile) => hisProfile.id)
-      .filter(
-        (hisProfile_id) => !usersInMyConversations_ids.includes(hisProfile_id)
-      );
+      .filter((hisProfile_id) => !usersInMyChats_ids.includes(hisProfile_id));
 
     console.log(
-      `Creating new conversation document for ${usersInMyConversations_ids.length}/${realNumberOfConversations} users...`
+      `Creating new chat document for ${usersInMyChats_ids.length}/${realNumberOfChats} users...`
     );
 
     const theirProfileObjects: profileObject[] = [];
-    const usersNotInMyConversations_objectArray: profileObject[] = [];
+    const usersNotInMyChats_objectArray: profileObject[] = [];
     theirProfiles.forEach((hisProfile) => {
-      if (usersNotInMyConversations_ids.includes(hisProfile.id)) {
-        usersNotInMyConversations_objectArray.push({
+      if (usersNotInMyChats_ids.includes(hisProfile.id)) {
+        usersNotInMyChats_objectArray.push({
           ID: hisProfile.id,
           profileSnapshot: hisProfile,
         });
@@ -125,9 +121,9 @@ export class ConversationGeneratorComponent {
       profileSnapshot: myProfile,
     };
 
-    await this.generateConversations(
+    await this.generateChats(
       myProfileObject,
-      usersNotInMyConversations_objectArray,
+      usersNotInMyChats_objectArray,
       numberOfMessages
     );
 
@@ -142,12 +138,12 @@ export class ConversationGeneratorComponent {
   }
 
   /**
-   * Generates conversation documents between the singular user and the group of users provided, directly to the database.
+   * Generates chat documents between the singular user and the group of users provided, directly to the database.
    * @param {profileObject} myProfile - Object that contains the user's ID and a snapshot of his profile data.
    * @param {profileObject[]} theirProfiles - Array of objects that each contains the user's ID and a snapshot of his profile data.
    * @return {Promise<void>}
    */
-  private async generateConversations(
+  private async generateChats(
     myProfile: profileObject,
     theirProfiles: profileObject[],
     messageAmount: number
@@ -169,20 +165,11 @@ export class ConversationGeneratorComponent {
 
       await Promise.all(
         theirProfiles.map(async (hisProfile) => {
-          const conversation = this.newConversation(
-            myProfile,
-            hisProfile,
-            messageAmount
-          );
+          const chat = this.newChat(myProfile, hisProfile, messageAmount);
 
-          const conversationID: string = this.getConversationID(
-            myProfile.ID,
-            hisProfile.ID
-          );
-          const conversationRef = this.get.conversationCollection.doc(
-            conversationID
-          );
-          batch.set(conversationRef, conversation);
+          const chatID: string = this.getChatID(myProfile.ID, hisProfile.ID);
+          const chatRef = this.get.chatCollection.doc(chatID);
+          batch.set(chatRef, chat);
 
           myMatches = this.updateMatches(myMatches, hisProfile.ID);
 
@@ -209,9 +196,9 @@ export class ConversationGeneratorComponent {
 
       await batch.commit();
 
-      console.log("Conversation creation complete.");
+      console.log("Chat creation complete.");
     } catch (e) {
-      throw new Error(`Error during generateConversations: ${e}`);
+      throw new Error(`Error during generateChats: ${e}`);
     }
   }
 
@@ -219,7 +206,7 @@ export class ConversationGeneratorComponent {
    * Generates a given number of message documents between the singular user and the group of users provided, directly to the database.
    * @param {profileObject} myProfile - Object that contains the user's ID and a snapshot of his profile data.
    * @param {profileObject[]} theirProfiles - Array of objects that each contains the user's ID and a snapshot of his profile data.
-   * @param {number} numberOfMessages - The number of messages to generate per conversation.
+   * @param {number} numberOfMessages - The number of messages to generate per chat.
    * @return {Promise<void>}
    */
   // private async generateMessages(
@@ -231,7 +218,7 @@ export class ConversationGeneratorComponent {
   //     const batch = this.environment.activeDatabase.firestore().batch();
   //     await Promise.all(
   //       theirProfiles.map(async (hisProfile) => {
-  //         const conversation_query = await this.get.conversations(
+  //         const chat_query = await this.get.chats(
   //           [
   //             [`userIDs.${myProfile.ID}`, "==", true],
   //             [`userIDs.${hisProfile.ID}`, "==", true],
@@ -239,18 +226,18 @@ export class ConversationGeneratorComponent {
   //           1
   //         );
 
-  //         if (conversation_query.empty) {
+  //         if (chat_query.empty) {
   //           console.error(
-  //             `No conversation document found between ${myProfile.ID} and ${hisProfile.ID}.`
+  //             `No chat document found between ${myProfile.ID} and ${hisProfile.ID}.`
   //           );
   //         }
-  //         const conversation = conversation_query.docs[0];
+  //         const chat = chat_query.docs[0];
 
   //         await Promise.all(
   //           Array.from({ length: numberOfMessages }, async () => {
   //             const message = this.newMessage(myProfile, hisProfile);
-  //             const messageDocumentRef = this.get.conversationCollection
-  //               .doc(conversation.id)
+  //             const messageDocumentRef = this.get.chatCollection
+  //               .doc(chat.id)
   //               .collection(this.name.messageCollection)
   //               .doc();
 
@@ -269,16 +256,16 @@ export class ConversationGeneratorComponent {
   // }
 
   /**
-   * Creates and returns a new conversation document between the two given users, filled with fake data.
+   * Creates and returns a new chat document between the two given users, filled with fake data.
    * @param {profileObject} user1 - Object that contains the user's ID and a snapshot of his profile data.
    * @param {profileObject} user2 - Object that contains the user's ID and a snapshot of his profile data.
-   * @return {message} Returns the conversation data as an object
+   * @return {message} Returns the chat data as an object
    */
-  private newConversation(
+  private newChat(
     user1: profileObject,
     user2: profileObject,
     messageAmount: number
-  ): conversation {
+  ): chat {
     if (!user1 || !user2) return;
     const messageCount = messageAmount ? +messageAmount : 10;
 
@@ -294,7 +281,7 @@ export class ConversationGeneratorComponent {
 
     const lastInteracted: Date = this.getLastMessageTime(messages);
 
-    const conversationObject: conversation = {
+    const chatObject: chat = {
       uids: [user1.ID, user2.ID],
       userSnippets: [
         { uid: user1.ID, name: user1Name, picture: user1Picture },
@@ -305,7 +292,7 @@ export class ConversationGeneratorComponent {
       lastInteracted,
     };
 
-    return conversationObject;
+    return chatObject;
   }
 
   /**
@@ -339,10 +326,10 @@ export class ConversationGeneratorComponent {
   }
 
   /**
-   * Updates the "lastMessage" field directly in the database of each conversation document
+   * Updates the "lastMessage" field directly in the database of each chat document
    * that the singular given user (who's ID is myID) has with the other given users (theirIDs).
    * @param {string} myID - The ID of the user (a.k.a name of his/her profile document)
-   * @param {string[]} theirIDs - The IDs of users that have a conversation document with the singular user
+   * @param {string[]} theirIDs - The IDs of users that have a chat document with the singular user
    * @return {Promise<void>} Returns a promise containing nothing
    */
   // private async updateLastMessage(
@@ -353,21 +340,21 @@ export class ConversationGeneratorComponent {
   //     const batch = this.environment.activeDatabase.firestore().batch();
   //     await Promise.all(
   //       theirIDs.map(async (hisID) => {
-  //         const conversationQuery = await this.get.conversations([
+  //         const chatQuery = await this.get.chats([
   //           [`userIDs.${myID}`, "==", true],
   //           [`userIDs.${hisID}`, "==", true],
   //         ]);
-  //         const conversation = conversationQuery.docs[0];
+  //         const chat = chatQuery.docs[0];
 
-  //         const lastMessageRef = await this.get.conversationCollection
-  //           .doc(conversation.id)
+  //         const lastMessageRef = await this.get.chatCollection
+  //           .doc(chat.id)
   //           .collection(this.name.messageCollection)
   //           .orderBy("time", "desc")
   //           .limit(1)
   //           .get();
   //         const lastMessage = lastMessageRef.docs[0].data()["content"];
 
-  //         batch.update(conversation.ref, { lastMessage: lastMessage });
+  //         batch.update(chat.ref, { lastMessage: lastMessage });
   //       })
   //     );
   //     await batch.commit();
@@ -393,7 +380,7 @@ export class ConversationGeneratorComponent {
     return [...new Set(...matchesArray, ...newMatch)];
   }
 
-  private getConversationID(uid1: string, uid2: string): string {
+  private getChatID(uid1: string, uid2: string): string {
     if (uid1 < uid2) {
       return uid1.concat(uid2);
     } else {

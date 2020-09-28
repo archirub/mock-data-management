@@ -6,14 +6,14 @@ import { Injectable } from "@angular/core";
 export class NameService {
   public profileCollection: string;
   public matchCollection: string;
-  public conversationCollection: string;
+  public chatCollection: string;
   public testCollection: string;
   public messageCollection: string;
 
   constructor() {
     this.profileCollection = "profiles";
     this.matchCollection = "matchData";
-    this.conversationCollection = "conversations";
+    this.chatCollection = "chats";
     this.testCollection = "tests";
     this.messageCollection = "messages";
   }

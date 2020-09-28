@@ -9,7 +9,7 @@ import { HomePage } from "./home.page";
 import { TestGeneratorComponent } from "./../generators/test-generator/test-generator.component";
 import { UserGeneratorComponent } from "./../generators/user-generator/user-generator.component";
 import { MatchGeneratorComponent } from "./../generators/match-generator/match-generator.component";
-import { ConversationGeneratorComponent } from "./../generators/conversation-generator/conversation-generator.component";
+import { ChatGeneratorComponent } from "./../generators/chat-generator/chat-generator.component";
 import { AccountGeneratorComponent } from "../generators/account-generator/account-generator.component";
 
 @NgModule({
@@ -18,7 +18,7 @@ import { AccountGeneratorComponent } from "../generators/account-generator/accou
     HomePage,
     UserGeneratorComponent,
     TestGeneratorComponent,
-    ConversationGeneratorComponent,
+    ChatGeneratorComponent,
     MatchGeneratorComponent,
     AccountGeneratorComponent,
   ],

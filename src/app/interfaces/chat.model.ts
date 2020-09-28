@@ -2,19 +2,19 @@
 //   [userID: string]: { name: string; picture: string };
 // }
 
-// interface conversationExtraFields {
+// interface chatExtraFields {
 //   userIDs: IDmap;
 //   lastMessage: string;
 // }
 
-// export type conversation = userProfileSnipets | conversationExtraFields;
+// export type chat = userProfileSnipets | chatExtraFields;
 
 export interface userSnippet {
   uid: string;
   name: string;
   picture: string;
 }
-export interface conversation {
+export interface chat {
   uids: string[];
   userSnippets: userSnippet[];
   messages: message[];

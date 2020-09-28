@@ -27,9 +27,9 @@ export class GetService {
     .firestore()
     .collection(this.name.profileCollection);
 
-  public conversationCollection = this.environment.activeDatabase
+  public chatCollection = this.environment.activeDatabase
     .firestore()
-    .collection(this.name.conversationCollection);
+    .collection(this.name.chatCollection);
 
   public matchCollection = this.environment.activeDatabase
     .firestore()
@@ -57,8 +57,8 @@ export class GetService {
     return query.get();
   }
 
-  conversations(where?: whereObject[], limit?: number) {
-    let query: Query = this.conversationCollection;
+  chats(where?: whereObject[], limit?: number) {
+    let query: Query = this.chatCollection;
     if (where) {
       where.forEach((where) => {
         query = query.where(where[0], where[1], where[2]);
@@ -84,7 +84,7 @@ export class GetService {
   }
 
   // messages(where?: whereObject[], limit?: number) {
-  //   let query: Query = this.conversationCollection;
+  //   let query: Query = this.chatCollection;
   //   if (where) {
   //     where.forEach((where) => {
   //       query = query.where(where[0], where[1], where[2]);
