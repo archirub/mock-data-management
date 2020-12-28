@@ -1,100 +1,78 @@
-export interface profile {
+import {
+  Interest,
+  SocietyCategory,
+  Location,
+  AreaOfStudy,
+  University,
+} from "./search-criteria.model";
+// export interface profile {
+//   // uid: string;
+//   firstName: string;
+//   lastName: string;
+//   dateOfBirth: Date;
+//   pictures: profilePictureUrls;
+//   biography: string;
+//   socialFeatures: socialFeatures;
+// }
+
+export interface profileFromDatabase {
+  displayName: string;
+  dateOfBirth: Date;
+  pictures: profilePictureUrls;
+  biography: string;
+
+  university: University;
+  // areaOfStudy: AreaOfStudy;
+  course: string;
+  society: string; // SOCIETIES???
+
+  // societyCategory: SocietyCategory;
+  interests: Interest[];
+  questions: QuestionAndAnswer[];
+  location: Location;
+
+  socialMediaLinks: SocialMediaLinks;
+
+  hasMatchDocument: boolean; // TEMPORARY Helps in match-generator to find profiles with no match document
+}
+
+export interface privateProfileFromDatabase {
   firstName: string;
   lastName: string;
-  dateOfBirth: Date;
-  pictures: userPictures;
-  biography: string;
-  socialFeatures: socialFeatures;
-  matches: IDarray;
-  hasMatchDocument: boolean; // Helps in match-generator to find profiles with no match document
+  // showProfile: Boolean;
+  settings: Setting[];
 }
 
-export interface SCriteria {
-  university?: University; // select
-  areaOfStudy?: AreaOfStudy; // select
-  ageRange?: AgeRange; // slider
-  societyCategory?: SocietyCategory; // select
-  interest?: Interest; // select
-  location?: Location; // radio button
-}
+// TO DEFINE
+const settingNameOption = ["showProfile?"] as const;
+export type settingName = typeof settingNameOption[number];
+export type Setting = { name: settingName; preference: any };
 
-export type University = "UCL";
-export type AreaOfStudy = string;
-export type AgeRange = "1821" | "2225" | "26plus";
-export type SocietyCategory = string;
-export type Interest = string;
-export type Location = "onCampus" | "offCampus";
+export const questionsOptions = [
+  "Wassup",
+  "What's your name",
+  "Haha lol?",
+  "winziz?",
+] as const;
+export type Question = typeof questionsOptions[number];
+export type QuestionAndAnswer = { question: Question; answer: string };
 
-export const searchCriteriaOptions = {
-  university: ["UCL"] as University[],
-  areaOfStudy: [
-    "politics",
-    "natural sciences",
-    "economics",
-    "education",
-  ] as AreaOfStudy[],
-  ageRange: ["1821", "2225", "26plus"] as AgeRange[],
-  societyCategory: [
-    "Debate Society",
-    "Basketball Society",
-    "Football Society",
-    "3D Modelling Society",
-    "Anime Society",
-  ] as SocietyCategory[],
-  interest: [
-    "sports guy",
-    "herb connoisseur",
-    "smart guy",
-    "beastaLegend",
-  ] as Interest[],
-  location: ["onCampus", "offCampus"] as Location[],
-};
+export const socialMediaOptions = ["facebook", "instagram"] as const;
+export type socialMedia = typeof socialMediaOptions[number];
+export type SocialMediaLinks = { socialMedia: socialMedia; link: string }[];
 
-export type Criterion = keyof SCriteria;
-export type SearchFeatures = SCriteria;
-
-export type IDarray = string[];
-
-export interface IDmap {
-  [userID: string]: true;
+export interface socialFeatures {
+  university: string;
+  course: string;
+  societies: SocietyCategory;
 }
 
 // users must have between 1 and 5 pictures
-export interface userPictures {
-  0: string;
-  [propName: number]: string;
-}
-export interface socialFeatures {
-  university: University;
-  course: Course;
-  societies: SocietyCategory[];
-}
+export type profilePictureUrls = [string?, string?, string?, string?, string?];
 
-export type Course = string;
-
-export const socialFeatureOptions = {
-  university: searchCriteriaOptions.university as University[],
-  course: [
-    "Physics",
-    "Mathematics",
-    "Politics",
-    "Computer Science",
-    "Liberal Arts",
-    "Arts & Sciences",
-  ] as Course[],
-  societes: searchCriteriaOptions.societyCategory,
-};
-
-export interface matchObject {
-  PI: number;
-  searchFeatures: SearchFeatures;
-  bannedUsers: IDarray;
-  likedUsers: IDarray;
-  matches: IDarray;
-}
 export interface profileObject {
   ID: string;
-  profileSnapshot: firebase.firestore.QueryDocumentSnapshot<
-    firebase.firestore.DocumentData
-  >;
+  profileSnapshot: profileSnapshot;
 }
+
+export type profileSnapshot = firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>;

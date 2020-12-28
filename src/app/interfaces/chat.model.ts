@@ -27,6 +27,7 @@ export interface message {
   time: Date;
   content: string;
   reaction: messageReaction;
+  seen: Boolean;
 }
 
 export type messageReaction =
