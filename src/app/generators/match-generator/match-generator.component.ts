@@ -4,9 +4,16 @@ import { EnvironmentService } from "../../services/environment.service";
 import { NameService } from "src/app/services/name.service";
 
 import {
-  socialFeatures,
+  Gender,
   matchObject,
-  searchCriteriaOptions,
+  SexualPreference,
+  swipeMode,
+} from "../../interfaces/match-data.model";
+import {
+  matchDataGenOptions,
+  searchCriteriaGenOptions,
+} from "../../interfaces/generating-options";
+import {
   AgeRange,
   AreaOfStudy,
   Interest,
@@ -14,7 +21,7 @@ import {
   SocietyCategory,
   University,
   Location,
-} from "../../interfaces/profile.model";
+} from "../../interfaces/search-criteria.model";
 
 @Component({
   selector: "app-match-generator",
@@ -52,25 +59,28 @@ export class MatchGeneratorComponent {
     }
 
     //extracting user ID & social features from database at once
-    let socialFeatures: socialFeatures[] = [];
+    let interests: Interest[] = [];
     const userIDs = new Array().concat(
       userRefs.docs.map((doc) => {
-        socialFeatures.push(doc.data().socialFeatures);
+        interests = doc.data().interests;
         return doc.id;
       })
     );
 
     // Creating new match docs
     // & Adding matches from profile document to matchDataDoc's matches array
-    const matchDataDocs = userIDs.map((userID, index) => {
-      const doc = this.newMatch(userID, socialFeatures[index]);
-      const matches = userRefs.docs.filter((doc) => doc.id === userID)[0].data()
-        .matches;
-      doc.matchObject.bannedUsers = matches;
-      doc.matchObject.matches = matches;
+    const matchDataDocs = userIDs.map((userID, index) =>
+      // {
+      //   const doc = this.newMatch(userID, interests);
+      //   const matches = userRefs.docs.filter((doc) => doc.id === userID)[0].data()
+      //     .matches;
+      //   doc.matchObject.unmatchableUsers = matches;
+      //   doc.matchObject.matches = matches;
 
-      return doc;
-    });
+      //   return doc;
+      // }
+      this.newMatch(userID, interests)
+    );
 
     const batch = this.databaseService.activeDatabase.firestore().batch();
 
@@ -99,33 +109,46 @@ export class MatchGeneratorComponent {
       .catch((err) => console.error(err.message));
   }
 
-  private newMatch(userID: string, socialFeatures_: socialFeatures) {
+  private newMatch(userID: string, interests_: Interest[]) {
     const PI: number = Math.random();
 
+    const gender: Gender =
+      matchDataGenOptions.gender[
+        Math.floor(Math.random() * matchDataGenOptions.gender.length)
+      ];
+    const sexualPreference: SexualPreference =
+      matchDataGenOptions.sexualPreference[
+        Math.floor(Math.random() * matchDataGenOptions.sexualPreference.length)
+      ];
+    const swipeMode: swipeMode =
+      matchDataGenOptions.swipeMode[
+        Math.floor(Math.random() * matchDataGenOptions.swipeMode.length)
+      ];
+
     //University
-    const university: University = searchCriteriaOptions.university[
-      Math.floor(Math.random() * searchCriteriaOptions.university.length)
+    const university: University = searchCriteriaGenOptions.university[
+      Math.floor(Math.random() * searchCriteriaGenOptions.university.length)
     ] as University;
 
-    const areaOfStudy: AreaOfStudy = searchCriteriaOptions.areaOfStudy[
-      Math.floor(Math.random() * searchCriteriaOptions.areaOfStudy.length)
+    const areaOfStudy: AreaOfStudy = searchCriteriaGenOptions.areaOfStudy[
+      Math.floor(Math.random() * searchCriteriaGenOptions.areaOfStudy.length)
     ] as AreaOfStudy;
 
-    const ageRange: AgeRange = searchCriteriaOptions.ageRange[
-      Math.floor(Math.random() * searchCriteriaOptions.ageRange.length)
+    const ageRange: AgeRange = searchCriteriaGenOptions.ageRange[
+      Math.floor(Math.random() * searchCriteriaGenOptions.ageRange.length)
     ] as AgeRange;
 
-    const societyCategory: SocietyCategory = searchCriteriaOptions
+    const societyCategory: SocietyCategory = searchCriteriaGenOptions
       .societyCategory[
-      Math.floor(Math.random() * searchCriteriaOptions.societyCategory.length)
+      Math.floor(
+        Math.random() * searchCriteriaGenOptions.societyCategory.length
+      )
     ] as SocietyCategory;
 
-    const interest: Interest = searchCriteriaOptions.interest[
-      Math.floor(Math.random() * searchCriteriaOptions.interest.length)
-    ] as Interest;
+    const interests: Interest[] = interests_ || [];
 
-    const location: Location = searchCriteriaOptions.location[
-      Math.floor(Math.random() * searchCriteriaOptions.location.length)
+    const location: Location = searchCriteriaGenOptions.location[
+      Math.floor(Math.random() * searchCriteriaGenOptions.location.length)
     ] as Location;
 
     const searchFeatures: SearchFeatures = {
@@ -133,16 +156,28 @@ export class MatchGeneratorComponent {
       areaOfStudy,
       ageRange,
       societyCategory,
-      interest,
+      interests,
       location,
     };
 
+    const showProfile: Boolean =
+      matchDataGenOptions.showProfile[
+        Math.floor(Math.random() * matchDataGenOptions.showProfile.length)
+      ];
+
     const matchObject: matchObject = {
       PI,
-      searchFeatures,
-      bannedUsers: [],
+
+      unmatchableUsers: [],
       likedUsers: [],
       matches: [],
+
+      gender,
+      sexualPreference,
+      swipeMode,
+      searchFeatures,
+
+      showProfile,
     };
 
     return { matchObject, userID };
