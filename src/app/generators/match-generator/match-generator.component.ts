@@ -1,3 +1,4 @@
+import { piStorageUID } from "./../../interfaces/match-data.model";
 import { Component } from "@angular/core";
 
 import { EnvironmentService } from "../../services/environment.service";
@@ -5,23 +6,26 @@ import { NameService } from "src/app/services/name.service";
 
 import {
   Gender,
-  matchObject,
+  mdFromDatabase,
+  mdDatingPickingFromDatabase,
+  mdFriendPickingFromDatabase,
   SexualPreference,
-  swipeMode,
+  SwipeMode,
 } from "../../interfaces/match-data.model";
 import {
   matchDataGenOptions,
   searchCriteriaGenOptions,
 } from "../../interfaces/generating-options";
 import {
-  AgeRange,
+  Degree,
   AreaOfStudy,
   Interest,
   SearchFeatures,
   SocietyCategory,
   University,
-  Location,
+  OnCampus,
 } from "../../interfaces/search-criteria.model";
+import { profileFromDatabase } from "src/app/interfaces/profile.model";
 
 @Component({
   selector: "app-match-generator",
@@ -29,19 +33,14 @@ import {
   styleUrls: ["./match-generator.component.scss"],
 })
 export class MatchGeneratorComponent {
-  constructor(
-    private databaseService: EnvironmentService,
-    private name: NameService
-  ) {}
+  constructor(private databaseService: EnvironmentService, private name: NameService) {}
 
   public async onGenerateMatches(amount: number) {
     // Converting string to number as <ion-input> gives a string.
     amount = +amount;
 
     if (!amount) {
-      return console.error(
-        "You must enter a valid quantity of match documents."
-      );
+      return console.error("You must enter a valid quantity of match documents.");
     }
 
     const userRefs = await this.databaseService.activeDatabase
@@ -57,29 +56,24 @@ export class MatchGeneratorComponent {
         `Only ${documentsFound} docs found with no corresponding match data (out of the ${amount} requested).`
       );
     }
-
+    const profileDocs = userRefs.docs as firebase.firestore.QueryDocumentSnapshot<profileFromDatabase>[];
     //extracting user ID & social features from database at once
-    let interests: Interest[] = [];
-    const userIDs = new Array().concat(
-      userRefs.docs.map((doc) => {
-        interests = doc.data().interests;
-        return doc.id;
+    // let interests: Interest[] = [];
+    const uidInterestMaps = new Array().concat(
+      profileDocs.map((doc) => {
+        // interests = doc.data().interests;
+        return {
+          uid: doc.id,
+          interests: doc.data().interests,
+          degree: doc.data().degree,
+        };
       })
     );
 
     // Creating new match docs
     // & Adding matches from profile document to matchDataDoc's matches array
-    const matchDataDocs = userIDs.map((userID, index) =>
-      // {
-      //   const doc = this.newMatch(userID, interests);
-      //   const matches = userRefs.docs.filter((doc) => doc.id === userID)[0].data()
-      //     .matches;
-      //   doc.matchObject.unmatchableUsers = matches;
-      //   doc.matchObject.matches = matches;
-
-      //   return doc;
-      // }
-      this.newMatch(userID, interests)
+    const matchDataDocs = uidInterestMaps.map((map, index) =>
+      this.newMatch(map.uid, map.interests, map.degree)
     );
 
     const batch = this.databaseService.activeDatabase.firestore().batch();
@@ -90,7 +84,22 @@ export class MatchGeneratorComponent {
         .firestore()
         .collection(this.name.matchCollection)
         .doc(match.userID);
-      batch.set(matchRef, match.matchObject);
+      const matchDatingRef = this.databaseService.activeDatabase
+        .firestore()
+        .collection(this.name.matchCollection)
+        .doc(match.userID)
+        .collection("pickingData")
+        .doc("dating");
+      const matchFriendRef = this.databaseService.activeDatabase
+        .firestore()
+        .collection(this.name.matchCollection)
+        .doc(match.userID)
+        .collection("pickingData")
+        .doc("friend");
+
+      batch.set(matchRef, match.mdObject);
+      batch.set(matchDatingRef, match.mdDatingObject);
+      batch.set(matchFriendRef, match.mdFriendObject);
     });
 
     // Setting hasMatchDocument to true in each user's profile
@@ -102,25 +111,31 @@ export class MatchGeneratorComponent {
     batch
       .commit()
       .then(() => {
-        console.log(
-          `${documentsFound} new match documents were added to the database.`
-        );
+        console.log(`${documentsFound} new match documents were added to the database.`);
       })
       .catch((err) => console.error(err.message));
   }
 
-  private newMatch(userID: string, interests_: Interest[]) {
+  private newMatch(
+    userID: string,
+    interests_: Interest[],
+    degree: Degree
+  ): {
+    userID: string;
+    mdObject: mdFromDatabase;
+    mdDatingObject: mdDatingPickingFromDatabase;
+    mdFriendObject: mdFriendPickingFromDatabase;
+  } {
     const PI: number = Math.random();
 
     const gender: Gender =
       matchDataGenOptions.gender[
         Math.floor(Math.random() * matchDataGenOptions.gender.length)
       ];
-    const sexualPreference: SexualPreference =
-      matchDataGenOptions.sexualPreference[
-        Math.floor(Math.random() * matchDataGenOptions.sexualPreference.length)
-      ];
-    const swipeMode: swipeMode =
+    const sexualPreference: SexualPreference = matchDataGenOptions.sexualPreference[
+      Math.floor(Math.random() * matchDataGenOptions.sexualPreference.length)
+    ] as SexualPreference;
+    const swipeMode: SwipeMode =
       matchDataGenOptions.swipeMode[
         Math.floor(Math.random() * matchDataGenOptions.swipeMode.length)
       ];
@@ -134,52 +149,72 @@ export class MatchGeneratorComponent {
       Math.floor(Math.random() * searchCriteriaGenOptions.areaOfStudy.length)
     ] as AreaOfStudy;
 
-    const ageRange: AgeRange = searchCriteriaGenOptions.ageRange[
-      Math.floor(Math.random() * searchCriteriaGenOptions.ageRange.length)
-    ] as AgeRange;
-
-    const societyCategory: SocietyCategory = searchCriteriaGenOptions
-      .societyCategory[
-      Math.floor(
-        Math.random() * searchCriteriaGenOptions.societyCategory.length
-      )
+    const societyCategory: SocietyCategory = searchCriteriaGenOptions.societyCategory[
+      Math.floor(Math.random() * searchCriteriaGenOptions.societyCategory.length)
     ] as SocietyCategory;
 
     const interests: Interest[] = interests_ || [];
 
-    const location: Location = searchCriteriaGenOptions.location[
-      Math.floor(Math.random() * searchCriteriaGenOptions.location.length)
-    ] as Location;
+    const onCampus: OnCampus =
+      searchCriteriaGenOptions.onCampus[
+        Math.floor(Math.random() * searchCriteriaGenOptions.onCampus.length)
+      ];
 
     const searchFeatures: SearchFeatures = {
       university,
       areaOfStudy,
-      ageRange,
+      degree,
       societyCategory,
       interests,
-      location,
+      onCampus,
     };
 
-    const showProfile: Boolean =
-      matchDataGenOptions.showProfile[
-        Math.floor(Math.random() * matchDataGenOptions.showProfile.length)
-      ];
+    const showProfile: Boolean = true;
+    // matchDataGenOptions.showProfile[
+    //   Math.floor(Math.random() * matchDataGenOptions.showProfile.length)
+    // ];
 
-    const matchObject: matchObject = {
-      PI,
-
-      unmatchableUsers: [],
-      likedUsers: [],
-      matches: [],
-
+    const mdObject: mdFromDatabase = {
+      matchedUsers: [],
+      dislikedUsers: [],
+      fmatchedUsers: [],
+      fdislikedUsers: [],
+      reportedUsers: [],
       gender,
       sexualPreference,
       swipeMode,
+    };
+    const mdDatingObject: mdDatingPickingFromDatabase = {
       searchFeatures,
-
       showProfile,
+      likedUsers: [],
+      superLikedUsers: [],
+      reportedUsers: [],
+    };
+    const mdFriendObject: mdFriendPickingFromDatabase = {
+      searchFeatures,
+      showProfile,
+      fLikedUsers: [],
+      reportedUsers: [],
     };
 
-    return { matchObject, userID };
+    // const matchObject: matchDataFromDatabase = {
+    //   PI,
+
+    //   matchedUsers: [],
+    //   likedUsers: [],
+    //   dislikedUsers: [],
+    //   superLikedUsers: [],
+    //   reportedUsers: [],
+
+    //   gender,
+    //   sexualPreference,
+    //   swipeMode,
+    //   searchFeatures,
+
+    //   showProfile,
+    // };
+
+    return { userID, mdObject, mdDatingObject, mdFriendObject };
   }
 }

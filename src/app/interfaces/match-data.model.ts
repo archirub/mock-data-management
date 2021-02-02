@@ -1,24 +1,74 @@
-import { SearchFeatures } from "./search-criteria.model";
+import { Degree, SearchFeatures } from "./search-criteria.model";
 
-export interface matchObject {
-  // userID: string;
-  PI: number;
+export interface mdFromDatabase {
+  matchedUsers: string[];
+  dislikedUsers: string[];
 
-  unmatchableUsers: string[];
-  likedUsers: string[];
-  matches: string[];
+  fmatchedUsers: string[];
+  fdislikedUsers: string[];
+
+  reportedUsers: string[];
 
   gender: Gender;
   sexualPreference: SexualPreference;
-  swipeMode: swipeMode;
-  searchFeatures: SearchFeatures;
 
+  swipeMode: SwipeMode;
+}
+
+export interface mdDatingPickingFromDatabase {
+  searchFeatures: SearchFeatures;
+  showProfile: Boolean;
+  reportedUsers: string[];
+  superLikedUsers: string[];
+  likedUsers: string[];
+}
+
+export interface mdFriendPickingFromDatabase {
+  searchFeatures: SearchFeatures;
+  showProfile: Boolean;
+  reportedUsers: string[];
+  fLikedUsers: string[];
+}
+
+export interface userInfoFromMatchData {
+  gender: Gender;
+  sexualPreference: SexualPreference;
+  swipeMode: SwipeMode;
   showProfile: Boolean;
 }
 
-export const genderOptions = ["male", "female", "non-binary"] as const;
-export type Gender = typeof genderOptions[number];
-export type SexualPreference = Gender[];
+export interface uidDatingStorage {
+  volume: number;
+  sexualPreference: "male" | "female";
+  gender: "male" | "female";
+  degree: Degree;
+  uids: string[];
+}
 
-export const swipeModeOptions = ["friend", "dating", "both"] as const;
-export type swipeMode = typeof swipeModeOptions[number];
+export interface uidFriendStorage {
+  volume: number;
+  uids: string[];
+}
+
+export interface piStorageUID {
+  seenCount: number;
+  likeCount: number;
+  currentPI: number;
+  gender: "male" | "female";
+  sexualPreference: "male" | "female";
+  degree: Degree;
+}
+
+export type piStorage = { uids: string[] } | { [uid: string]: piStorageUID };
+
+export const genderOptions = ["male", "female", "other"] as const;
+export type Gender = typeof genderOptions[number];
+export const sexualPreferenceOptions = [
+  ["male"] as const,
+  ["female"] as const,
+  ["male", "female"] as const,
+] as const;
+export type SexualPreference = typeof sexualPreferenceOptions[number];
+
+export const swipeModeOptions = ["friend", "dating"] as const;
+export type SwipeMode = typeof swipeModeOptions[number];

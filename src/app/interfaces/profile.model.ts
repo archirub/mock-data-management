@@ -1,9 +1,10 @@
 import {
   Interest,
   SocietyCategory,
-  Location,
-  AreaOfStudy,
   University,
+  searchCriteriaFromDatabase,
+  OnCampus,
+  Degree,
 } from "./search-criteria.model";
 // export interface profile {
 //   // uid: string;
@@ -22,6 +23,7 @@ export interface profileFromDatabase {
   biography: string;
 
   university: University;
+  degree: Degree;
   // areaOfStudy: AreaOfStudy;
   course: string;
   society: string; // SOCIETIES???
@@ -29,7 +31,7 @@ export interface profileFromDatabase {
   // societyCategory: SocietyCategory;
   interests: Interest[];
   questions: QuestionAndAnswer[];
-  location: Location;
+  onCampus: OnCampus;
 
   socialMediaLinks: SocialMediaLinks;
 
@@ -39,8 +41,8 @@ export interface profileFromDatabase {
 export interface privateProfileFromDatabase {
   firstName: string;
   lastName: string;
-  // showProfile: Boolean;
   settings: Setting[];
+  latestSearchCriteria: searchCriteriaFromDatabase;
 }
 
 // TO DEFINE

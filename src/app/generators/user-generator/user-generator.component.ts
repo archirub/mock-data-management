@@ -23,7 +23,10 @@ import {
   socialMediaGenOptions,
 } from "../../interfaces/generating-options";
 import {
+  Degree,
   Interest,
+  OnCampus,
+  searchCriteriaFromDatabase,
   SocietyCategory,
   University,
 } from "../../interfaces/search-criteria.model";
@@ -34,10 +37,7 @@ import {
   styleUrls: ["./user-generator.component.scss"],
 })
 export class UserGeneratorComponent {
-  constructor(
-    private environment: EnvironmentService,
-    private name: NameService
-  ) {}
+  constructor(private environment: EnvironmentService, private name: NameService) {}
 
   public async onGenerateUsers(
     amount: number,
@@ -88,14 +88,17 @@ export class UserGeneratorComponent {
     });
 
     //Biography
-    const biography: string = faker.lorem.sentence(
-      Math.floor(Math.random() * 20 + 5)
-    );
+    const biography: string = faker.lorem.sentence(Math.floor(Math.random() * 20 + 5));
 
     //University
     const university: University = searchCriteriaGenOptions.university[
       Math.floor(Math.random() * searchCriteriaGenOptions.university.length)
     ] as University;
+
+    const degree: Degree =
+      searchCriteriaGenOptions.degree[
+        Math.floor(Math.random() * searchCriteriaGenOptions.degree.length)
+      ];
 
     //Course
     const course: string =
@@ -112,9 +115,7 @@ export class UserGeneratorComponent {
     // ] as SocietyCategory[];
     const society: SocietyCategory =
       searchCriteriaGenOptions.societyCategory[
-        Math.floor(
-          Math.random() * searchCriteriaGenOptions.societyCategory.length
-        )
+        Math.floor(Math.random() * searchCriteriaGenOptions.societyCategory.length)
       ];
 
     const numberOfInterests = Math.floor(Math.random() * 2 + 1);
@@ -133,14 +134,12 @@ export class UserGeneratorComponent {
       questions.push({ question: Q, answer: faker.lorem.sentence() });
     });
 
-    const location =
-      searchCriteriaGenOptions.location[
-        Math.floor(Math.random() * searchCriteriaGenOptions.location.length)
+    const onCampus: OnCampus =
+      searchCriteriaGenOptions.onCampus[
+        Math.floor(Math.random() * searchCriteriaGenOptions.onCampus.length)
       ];
 
-    const numberOfSocials = Math.floor(
-      Math.random() * socialMediaGenOptions.length + 1
-    );
+    const numberOfSocials = Math.floor(Math.random() * socialMediaGenOptions.length + 1);
     const socials: socialMedia[] = [];
     this.shuffleArray([...Array(numberOfSocials).keys()]).forEach((index) => {
       socials.push(socialMediaGenOptions[index]);
@@ -157,11 +156,12 @@ export class UserGeneratorComponent {
       pictures,
       biography,
       university,
+      degree,
       course,
       society,
       interests,
       questions,
-      location,
+      onCampus,
       socialMediaLinks,
       hasMatchDocument: false,
     };
@@ -175,10 +175,19 @@ export class UserGeneratorComponent {
 
     // TO MODIFY ONCE SETTINGS ARE FIGURED OUT
     const settings = [];
+    const latestSearchCriteria: searchCriteriaFromDatabase = {
+      university: null,
+      areaOfStudy: null,
+      degree: null,
+      societyCategory: null,
+      interest: null,
+      onCampus: null,
+    };
 
     const privateUserProfile: privateProfileFromDatabase = {
       firstName,
       lastName,
+      latestSearchCriteria,
       settings,
     };
     return privateUserProfile;

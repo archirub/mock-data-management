@@ -8,9 +8,9 @@ import { StatusBar } from "@ionic-native/status-bar/ngx";
 
 import { AngularFireModule } from "@angular/fire";
 import { AngularFirestoreModule } from "@angular/fire/firestore";
-import { environment } from "../environments/environment";
-
 import { AngularFireFunctionsModule, REGION } from "@angular/fire/functions";
+
+import { environment } from "../environments/environment";
 
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";

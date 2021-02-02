@@ -5,13 +5,14 @@ import { NameService } from "../../services/name.service";
 import { GetService } from "src/app/services/get.service";
 
 import * as faker from "faker";
+import * as firebase from "firebase";
 
+import { chatFromDatabase } from "./../../interfaces/chat.model";
 import {
-  chat,
-  message,
+  messageFromDatabase,
   messageReaction,
-  MessageReaction,
-} from "./../../interfaces/chat.model";
+  messageReactionOptions,
+} from "./../../interfaces/message.model";
 import { profileObject } from "../../interfaces/profile.model";
 
 @Component({
@@ -84,13 +85,13 @@ export class ChatGeneratorComponent {
     );
 
     // FETCHING CONVERSATION DOCUMENTS OF TARGET USER
-    const myChats = await this.get.chats([[`userIDs.${myID}`, "==", true]]);
+    const myChats = await this.get.chats([[`uids.${myID}`, "==", true]]);
 
     // FINDING THE ID OF ALL USERS WHO HAVE A CONVERSATION DOC WITH TARGET
     const usersInMyChats_ids: string[] = [];
     for (let myChat of myChats.docs) {
       for (let hisProfile of theirProfiles) {
-        if (myChat.data()[`userIDs.${hisProfile.id}`] === true) {
+        if (myChat.data()[`uids.${hisProfile.id}`] === true) {
           usersInMyChats_ids.push(hisProfile.id);
         }
       }
@@ -160,7 +161,7 @@ export class ChatGeneratorComponent {
         .get();
 
       if (!myMatchData.exists) {
-        console.error("No matchData document was found.");
+        console.error("Document contains no data / doesn't exist");
       }
 
       await Promise.all(
@@ -174,16 +175,17 @@ export class ChatGeneratorComponent {
 
           myMatches = this.updateMatches(myMatches, hisProfile.ID);
 
-          batch.update(myProfile.profileSnapshot.ref, { matches: myMatches });
+          // batch.update(myProfile.profileSnapshot.ref, { matchedUsers: myMatches });
 
-          batch.update(myMatchData.ref, { matches: myMatches });
+          batch.update(myMatchData.ref, {
+            matchedUsers: firebase.firestore.FieldValue.arrayUnion(...myMatches),
+          });
 
-          let hisMatches: null | string[] = hisProfile.profileSnapshot.data()
-            .matches;
+          let hisMatches: null | string[] = hisProfile.profileSnapshot.data().matches;
 
           hisMatches = this.updateMatches(hisMatches, myProfile.ID);
 
-          batch.update(hisProfile.profileSnapshot.ref, { matches: hisMatches });
+          // batch.update(hisProfile.profileSnapshot.ref, { matchedUsers: hisMatches });
 
           const hisMatchData = await this.environment.activeDatabase
             .firestore()
@@ -191,7 +193,9 @@ export class ChatGeneratorComponent {
             .doc(hisProfile.ID)
             .get();
 
-          batch.update(hisMatchData.ref, { matches: hisMatches });
+          batch.update(hisMatchData.ref, {
+            matchedUsers: firebase.firestore.FieldValue.arrayUnion(...hisMatches),
+          });
         })
       );
 
@@ -260,13 +264,13 @@ export class ChatGeneratorComponent {
    * Creates and returns a new chat document between the two given users, filled with fake data.
    * @param {profileObject} user1 - Object that contains the user's ID and a snapshot of his profile data.
    * @param {profileObject} user2 - Object that contains the user's ID and a snapshot of his profile data.
-   * @return {message} Returns the chat data as an object
+   * @return {messageFromDatabase} Returns the chat data as an object
    */
   private newChat(
     user1: profileObject,
     user2: profileObject,
     messageAmount: number
-  ): chat {
+  ): chatFromDatabase {
     if (!user1 || !user2) return;
     const messageCount = messageAmount ? +messageAmount : 10;
 
@@ -274,16 +278,18 @@ export class ChatGeneratorComponent {
     const user1Picture: string = user1.profileSnapshot.data().pictures[0];
     const user2Name: string = user2.profileSnapshot.data().displayName;
     const user2Picture: string = user2.profileSnapshot.data().pictures[0];
-    let messages: message[] = [];
+    let messages: messageFromDatabase[] = [];
 
     Array.from({ length: messageCount }).forEach(() => {
       messages.push(this.newMessage(user1, user2));
     });
 
-    const lastInteracted: Date = this.getLastMessageTime(messages);
+    const lastInteracted: firebase.firestore.Timestamp = this.getLastMessageTime(
+      messages
+    );
 
-    const chatObject: chat = {
-      uids: [user1.ID, user2.ID],
+    const chatObject: chatFromDatabase = {
+      uids: this.sortUIDs([user1.ID, user2.ID]),
       userSnippets: [
         { uid: user1.ID, name: user1Name, picture: user1Picture },
         { uid: user2.ID, name: user2Name, picture: user2Picture },
@@ -300,9 +306,9 @@ export class ChatGeneratorComponent {
    * Creates and returns a new message document between the two given users, filled with fake data.
    * @param {profileObject} user1 - Object that contains the user's ID and a snapshot of his profile data.
    * @param {profileObject} user2 - Object that contains the user's ID and a snapshot of his profile data.
-   * @return {message} Returns the message data as an object
+   * @return {messageFromDatabase} Returns the message data as an object
    */
-  private newMessage(user1: profileObject, user2: profileObject): message {
+  private newMessage(user1: profileObject, user2: profileObject): messageFromDatabase {
     if (!user1 || !user2) {
       console.log("Can't create new message.");
       return;
@@ -310,19 +316,18 @@ export class ChatGeneratorComponent {
 
     const senderID = Math.round(Math.random()) === 1 ? user1.ID : user2.ID;
     // SHOULD TIME BE RANDOM OR BE NEW DATE.NOW
-    const time: Date = faker.date.recent(10);
-    // const time: Date = new Date();
+    const time = firebase.firestore.Timestamp.fromDate(faker.date.recent(10));
+    const seen = false;
     const content = faker.lorem.sentence();
     const reaction: messageReaction =
-      MessageReaction[Math.floor(Math.random() * MessageReaction.length)];
-    const seen: Boolean = false;
+      messageReactionOptions[Math.floor(Math.random() * messageReactionOptions.length)];
 
-    const message: message = {
+    const message: messageFromDatabase = {
       senderID,
+      seen,
       time,
       content,
       reaction,
-      seen,
     };
 
     return message;
@@ -375,10 +380,7 @@ export class ChatGeneratorComponent {
    * @param {string} newMatch - The ID of a new match.
    * @return {string[]} The updated array of IDs of one's matches
    */
-  private updateMatches(
-    matchesArray: string[] | undefined,
-    newMatch: string
-  ): string[] {
+  private updateMatches(matchesArray: string[] | undefined, newMatch: string): string[] {
     if (!matchesArray) return [newMatch];
     return [...new Set(matchesArray.concat(newMatch))];
   }
@@ -391,13 +393,19 @@ export class ChatGeneratorComponent {
     }
   }
 
-  private getLastMessageTime(messages: message[]): Date {
-    let latestMessage: message = messages[0];
+  private getLastMessageTime(
+    messages: messageFromDatabase[]
+  ): firebase.firestore.Timestamp {
+    let latestMessage: messageFromDatabase = messages[0];
     messages.forEach((message) => {
-      if (message.time.getTime() > latestMessage.time.getTime()) {
+      if (message.time.seconds > latestMessage.time.seconds) {
         latestMessage = message;
       }
     });
     return latestMessage.time;
+  }
+
+  private sortUIDs(uids: string[]): string[] {
+    return uids.sort((a, b) => ("" + a).localeCompare(b));
   }
 }

@@ -1,14 +1,18 @@
-import { Gender, genderOptions, swipeModeOptions } from "./match-data.model";
+import {
+  genderOptions,
+  sexualPreferenceOptions,
+  swipeModeOptions,
+} from "./match-data.model";
 import { questionsOptions, socialMediaOptions } from "./profile.model";
 import { searchCriteriaOptions } from "./search-criteria.model";
 
 export const searchCriteriaGenOptions = {
   university: searchCriteriaOptions.university,
   areaOfStudy: searchCriteriaOptions.areaOfStudy,
-  ageRange: searchCriteriaOptions.ageRange,
+  degree: searchCriteriaOptions.degree,
   societyCategory: searchCriteriaOptions.societyCategory,
   interest: searchCriteriaOptions.interest,
-  location: searchCriteriaOptions.location,
+  onCampus: searchCriteriaOptions.onCampus,
 };
 
 export const socialFeatureGenOptions = {
@@ -25,11 +29,11 @@ export const socialFeatureGenOptions = {
   questions: questionsOptions,
 };
 
-const sexualPrefOptions: Gender[][] = getCombinations(genderOptions);
+// const sexualPrefOptions = getCombinations(["male", "female"]);
 
 export const matchDataGenOptions = {
   gender: genderOptions,
-  sexualPreference: sexualPrefOptions,
+  sexualPreference: sexualPreferenceOptions,
   swipeMode: swipeModeOptions,
   showProfile: [true, true, true, true, true, true, true, true, true, false], // to outweight when profile isn't shown but still have some false to make sure everything works fine
 };

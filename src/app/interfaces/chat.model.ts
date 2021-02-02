@@ -1,50 +1,23 @@
-// interface userProfileSnipets {
-//   [userID: string]: { name: string; picture: string };
-// }
-
-// interface chatExtraFields {
-//   userIDs: IDmap;
-//   lastMessage: string;
-// }
-
-// export type chat = userProfileSnipets | chatExtraFields;
+import { messageFromDatabase } from "./message.model";
+// import { Message } from "@classes/index";
 
 export interface userSnippet {
   uid: string;
   name: string;
   picture: string;
 }
-export interface chat {
+export interface chatFromDatabase {
   uids: string[];
   userSnippets: userSnippet[];
-  messages: message[];
+  messages: messageFromDatabase[];
   batchVolume: number;
-  lastInteracted: Date;
+  lastInteracted: firebase.firestore.Timestamp;
 }
 
-export interface message {
-  senderID: string;
-  time: Date;
-  content: string;
-  reaction: messageReaction;
-  seen: Boolean;
-}
-
-export type messageReaction =
-  | "null"
-  | "love"
-  | "angry"
-  | "laugh"
-  | "cry"
-  | "thumbUp"
-  | "thumbDown";
-
-export const MessageReaction: messageReaction[] = [
-  "null",
-  "love",
-  "angry",
-  "laugh",
-  "cry",
-  "thumbUp",
-  "thumbDown",
-];
+// export interface chat {
+//   id: string;
+//   recipient: userSnippet;
+//   messages: Message[];
+//   batchVolume: number;
+//   lastInteracted: Date;
+// }

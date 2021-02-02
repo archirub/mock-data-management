@@ -3,7 +3,6 @@ import { Component } from "@angular/core";
 import { Platform } from "@ionic/angular";
 import { SplashScreen } from "@ionic-native/splash-screen/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
-import { AngularFireFunctions } from "@angular/fire/functions";
 
 @Component({
   selector: "app-root",
@@ -14,8 +13,7 @@ export class AppComponent {
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
-    private statusBar: StatusBar,
-    private afFunctions: AngularFireFunctions
+    private statusBar: StatusBar
   ) {
     this.initializeApp();
   }
@@ -24,11 +22,6 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
-
-      this.afFunctions
-        .httpsCallable("helloWorld")({})
-        .toPromise()
-        .then((r) => console.log(r));
     });
   }
 }
