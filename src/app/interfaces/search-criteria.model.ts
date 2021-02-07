@@ -12,7 +12,7 @@ export interface SearchFeatures {
   areaOfStudy: AreaOfStudy;
   degree: Degree;
   societyCategory: SocietyCategory; // CHANGE TO ARRAY IF ITS POSSIBLE TO SELECT MULTIPLE SOCIETES
-  interests: Interest[];
+  interest: Interest[];
   onCampus: OnCampus;
 }
 

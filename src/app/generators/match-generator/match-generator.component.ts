@@ -1,4 +1,3 @@
-import { piStorageUID } from "./../../interfaces/match-data.model";
 import { Component } from "@angular/core";
 
 import { EnvironmentService } from "../../services/environment.service";
@@ -64,7 +63,7 @@ export class MatchGeneratorComponent {
         // interests = doc.data().interests;
         return {
           uid: doc.id,
-          interests: doc.data().interests,
+          interest: doc.data().interest,
           degree: doc.data().degree,
         };
       })
@@ -73,7 +72,7 @@ export class MatchGeneratorComponent {
     // Creating new match docs
     // & Adding matches from profile document to matchDataDoc's matches array
     const matchDataDocs = uidInterestMaps.map((map, index) =>
-      this.newMatch(map.uid, map.interests, map.degree)
+      this.newMatch(map.uid, map.interest, map.degree)
     );
 
     const batch = this.databaseService.activeDatabase.firestore().batch();
@@ -118,7 +117,7 @@ export class MatchGeneratorComponent {
 
   private newMatch(
     userID: string,
-    interests_: Interest[],
+    interest_: Interest[],
     degree: Degree
   ): {
     userID: string;
@@ -153,7 +152,7 @@ export class MatchGeneratorComponent {
       Math.floor(Math.random() * searchCriteriaGenOptions.societyCategory.length)
     ] as SocietyCategory;
 
-    const interests: Interest[] = interests_ || [];
+    const interest: Interest[] = interest_ || [];
 
     const onCampus: OnCampus =
       searchCriteriaGenOptions.onCampus[
@@ -165,37 +164,38 @@ export class MatchGeneratorComponent {
       areaOfStudy,
       degree,
       societyCategory,
-      interests,
+      interest,
       onCampus,
     };
 
+    const percentile: number = Math.random();
     const showProfile: Boolean = true;
     // matchDataGenOptions.showProfile[
     //   Math.floor(Math.random() * matchDataGenOptions.showProfile.length)
     // ];
 
     const mdObject: mdFromDatabase = {
-      matchedUsers: [],
-      dislikedUsers: [],
-      fmatchedUsers: [],
-      fdislikedUsers: [],
-      reportedUsers: [],
+      matchedUsers: {},
+      dislikedUsers: {},
+      fmatchedUsers: {},
+      fdislikedUsers: {},
+      reportedUsers: {},
       gender,
       sexualPreference,
+      showProfile,
+      percentile,
       swipeMode,
     };
     const mdDatingObject: mdDatingPickingFromDatabase = {
       searchFeatures,
-      showProfile,
-      likedUsers: [],
-      superLikedUsers: [],
-      reportedUsers: [],
+      likedUsers: {},
+      superLikedUsers: {},
+      reportedUsers: {},
     };
     const mdFriendObject: mdFriendPickingFromDatabase = {
       searchFeatures,
-      showProfile,
-      fLikedUsers: [],
-      reportedUsers: [],
+      fLikedUsers: {},
+      reportedUsers: {},
     };
 
     // const matchObject: matchDataFromDatabase = {
