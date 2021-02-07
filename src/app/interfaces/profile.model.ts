@@ -29,7 +29,7 @@ export interface profileFromDatabase {
   society: string; // SOCIETIES???
 
   // societyCategory: SocietyCategory;
-  interests: Interest[];
+  interest: Interest[];
   questions: QuestionAndAnswer[];
   onCampus: OnCampus;
 

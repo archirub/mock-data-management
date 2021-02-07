@@ -48,13 +48,8 @@ export class ChatGeneratorComponent {
   ): Promise<void> {
     numberOfChats = numberOfChats ? +numberOfChats : 10;
     numberOfMessages = numberOfMessages ? +numberOfMessages : 10;
-    if (!userID) {
-      return console.error("Info incomplete");
-    }
 
-    const myID = userID;
-    console.log("myID is ", myID);
-    console.log("type of myID is ", typeof myID);
+    const myID = userID ? userID : "oY6HiUHmUvcKbFQQnb88t3U4Zew1";
 
     // FETCHING TARGET DOC PROFILE
     const myProfile = await this.get.profile(myID);
@@ -173,28 +168,33 @@ export class ChatGeneratorComponent {
           const chatRef = this.get.chatCollection.doc();
           batch.set(chatRef, chat);
 
-          myMatches = this.updateMatches(myMatches, hisProfile.ID);
+          // myMatches = this.updateMatches(myMatches, hisProfile.ID);
 
           // batch.update(myProfile.profileSnapshot.ref, { matchedUsers: myMatches });
 
           batch.update(myMatchData.ref, {
-            matchedUsers: firebase.firestore.FieldValue.arrayUnion(...myMatches),
+            [`matchedUsers.${hisProfile.ID}`]: {
+              exists: true,
+              date: firebase.firestore.Timestamp.fromDate(new Date()),
+            },
           });
 
-          let hisMatches: null | string[] = hisProfile.profileSnapshot.data().matches;
+          // let hisMatches: null | string[] = hisProfile.profileSnapshot.data().matches;
 
-          hisMatches = this.updateMatches(hisMatches, myProfile.ID);
+          // hisMatches = this.updateMatches(hisMatches, myProfile.ID);
 
           // batch.update(hisProfile.profileSnapshot.ref, { matchedUsers: hisMatches });
 
-          const hisMatchData = await this.environment.activeDatabase
+          const hisMatchDataRef = this.environment.activeDatabase
             .firestore()
             .collection(this.name.matchCollection)
-            .doc(hisProfile.ID)
-            .get();
+            .doc(hisProfile.ID);
 
-          batch.update(hisMatchData.ref, {
-            matchedUsers: firebase.firestore.FieldValue.arrayUnion(...hisMatches),
+          batch.update(hisMatchDataRef, {
+            [`matchedUsers.${myProfile.ID}`]: {
+              exists: true,
+              date: firebase.firestore.Timestamp.fromDate(new Date()),
+            },
           });
         })
       );

@@ -118,10 +118,10 @@ export class UserGeneratorComponent {
         Math.floor(Math.random() * searchCriteriaGenOptions.societyCategory.length)
       ];
 
-    const numberOfInterests = Math.floor(Math.random() * 2 + 1);
-    const interests: Interest[] = [];
-    this.shuffleArray([...Array(numberOfInterests).keys()]).forEach((index) => {
-      interests.push(searchCriteriaGenOptions.interest[index]);
+    const numberOfInterest = Math.floor(Math.random() * 2 + 1);
+    const interest: Interest[] = [];
+    this.shuffleArray([...Array(numberOfInterest).keys()]).forEach((index) => {
+      interest.push(searchCriteriaGenOptions.interest[index]);
     });
 
     const numberOfQuestions = Math.floor(Math.random() * 2 + 1);
@@ -159,7 +159,7 @@ export class UserGeneratorComponent {
       degree,
       course,
       society,
-      interests,
+      interest,
       questions,
       onCampus,
       socialMediaLinks,

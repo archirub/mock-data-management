@@ -11,7 +11,7 @@ import { UserGeneratorComponent } from "./../generators/user-generator/user-gene
 import { MatchGeneratorComponent } from "./../generators/match-generator/match-generator.component";
 import { ChatGeneratorComponent } from "./../generators/chat-generator/chat-generator.component";
 import { AccountGeneratorComponent } from "../generators/account-generator/account-generator.component";
-import { PiGeneratorComponent } from "../generators/pi-generator/pi-generator/pi-generator.component";
+import { PiGeneratorComponent } from "../generators/pi-generator/pi-generator.component";
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, HomePageRoutingModule],
