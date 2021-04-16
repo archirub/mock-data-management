@@ -1,0 +1,13 @@
+{
+  "appId": "io.mockdatamanagement.nemo",
+  "appName": "mock data management",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "cordova": {}
+}

@@ -274,9 +274,9 @@ export class ChatGeneratorComponent {
     if (!user1 || !user2) return;
     const messageCount = messageAmount ? +messageAmount : 10;
 
-    const user1Name: string = user1.profileSnapshot.data().displayName;
+    const user1Name: string = user1.profileSnapshot.data().firstName;
     const user1Picture: string = user1.profileSnapshot.data().pictures[0];
-    const user2Name: string = user2.profileSnapshot.data().displayName;
+    const user2Name: string = user2.profileSnapshot.data().firstName;
     const user2Picture: string = user2.profileSnapshot.data().pictures[0];
     let messages: messageFromDatabase[] = [];
 

@@ -57,10 +57,8 @@ export class MatchGeneratorComponent {
     }
     const profileDocs = userRefs.docs as firebase.firestore.QueryDocumentSnapshot<profileFromDatabase>[];
     //extracting user ID & social features from database at once
-    // let interests: Interest[] = [];
     const uidInterestMaps = new Array().concat(
       profileDocs.map((doc) => {
-        // interests = doc.data().interests;
         return {
           uid: doc.id,
           interest: doc.data().interest,
@@ -168,13 +166,12 @@ export class MatchGeneratorComponent {
       onCampus,
     };
 
-    const percentile: number = Math.random();
-    const showProfile: Boolean = true;
     // matchDataGenOptions.showProfile[
     //   Math.floor(Math.random() * matchDataGenOptions.showProfile.length)
     // ];
 
     const mdObject: mdFromDatabase = {
+      uidCount: 0,
       matchedUsers: {},
       dislikedUsers: {},
       fmatchedUsers: {},
@@ -182,38 +179,21 @@ export class MatchGeneratorComponent {
       reportedUsers: {},
       gender,
       sexualPreference,
-      showProfile,
-      percentile,
       swipeMode,
     };
     const mdDatingObject: mdDatingPickingFromDatabase = {
+      uidCount: 0,
       searchFeatures,
       likedUsers: {},
       superLikedUsers: {},
       reportedUsers: {},
     };
     const mdFriendObject: mdFriendPickingFromDatabase = {
+      uidCount: 0,
       searchFeatures,
       fLikedUsers: {},
       reportedUsers: {},
     };
-
-    // const matchObject: matchDataFromDatabase = {
-    //   PI,
-
-    //   matchedUsers: [],
-    //   likedUsers: [],
-    //   dislikedUsers: [],
-    //   superLikedUsers: [],
-    //   reportedUsers: [],
-
-    //   gender,
-    //   sexualPreference,
-    //   swipeMode,
-    //   searchFeatures,
-
-    //   showProfile,
-    // };
 
     return { userID, mdObject, mdDatingObject, mdFriendObject };
   }

@@ -1,7 +1,7 @@
 import {
   QuestionAndAnswer,
   socialMedia,
-  SocialMediaLinks,
+  SocialMediaLink,
 } from "./../../interfaces/profile.model";
 import { Component } from "@angular/core";
 
@@ -13,9 +13,9 @@ import * as faker from "faker";
 import {
   profileFromDatabase,
   privateProfileFromDatabase,
-  profilePictureUrls,
   questionsOptions,
   Question,
+  Settings,
 } from "../../interfaces/profile.model";
 import {
   searchCriteriaGenOptions,
@@ -26,10 +26,12 @@ import {
   Degree,
   Interest,
   OnCampus,
-  searchCriteriaFromDatabase,
+  searchCriteria,
   SocietyCategory,
   University,
 } from "../../interfaces/search-criteria.model";
+import { PictureUploadService } from "src/app/services/picture-upload.service";
+import * as firebase from "firebase";
 
 @Component({
   selector: "app-user-generator",
@@ -37,7 +39,18 @@ import {
   styleUrls: ["./user-generator.component.scss"],
 })
 export class UserGeneratorComponent {
-  constructor(private environment: EnvironmentService, private name: NameService) {}
+  picturesSelected: FileList;
+
+  constructor(
+    private environment: EnvironmentService,
+    private name: NameService,
+    private pictureUpload: PictureUploadService
+  ) {}
+
+  public onSelectPictures(fileList: FileList) {
+    if (!fileList) return;
+    this.picturesSelected = fileList;
+  }
 
   public async onGenerateUsers(
     amount: number,
@@ -45,6 +58,10 @@ export class UserGeneratorComponent {
   ): Promise<void> {
     if (!amount) {
       return console.error("You must enter a valid quantity of user profiles");
+    }
+
+    if (!this.picturesSelected) {
+      return console.error("Select pictures first");
     }
 
     // await this.environment.activeDatabase.auth()
@@ -57,35 +74,41 @@ export class UserGeneratorComponent {
 
     // Generating profiles
     await Promise.all(
-      userIDs.map(async (userID) => {
-        await database
-          .collection(this.name.profileCollection)
-          .doc(userID)
-          .set(this.newUser())
-          .catch((err) => console.error(err));
+      userIDs.map(async (uid) => {
+        return Promise.all([
+          this.pictureUpload.uploadToFirebase(this.picturesSelected, uid),
 
-        await database
-          .collection(this.name.profileCollection)
-          .doc(userID)
-          .collection("private")
-          .doc("private")
-          .set(this.newPrivateUser())
-          .catch((err) => console.error(err));
+          database
+            .collection(this.name.profileCollection)
+            .doc(uid)
+            .set(this.newUser())
+            .catch((err) => console.error(err)),
+
+          database
+            .collection(this.name.profileCollection)
+            .doc(uid)
+            .collection("private")
+            .doc("private")
+            .set(this.newPrivateUser())
+            .catch((err) => console.error(err)),
+        ]);
       })
     );
     console.log(`${amount} user profiles were added to the database.`);
   }
 
   private newUser(): profileFromDatabase {
-    const displayName: string = faker.name.firstName();
-    const dateOfBirth: Date = faker.date.between("1995-01-01", "2002-12-31");
+    const firstName: string = faker.name.firstName();
+    const dateOfBirth = firebase.firestore.Timestamp.fromDate(
+      faker.date.between("1995-01-01", "2002-12-31")
+    );
 
     //Map of pictures
-    const numberOfPics = Math.floor(Math.random() * 5 + 1);
-    const pictures: profilePictureUrls = []; //Declared the 0 property to help TypeScript
-    Array.from({ length: numberOfPics }).map(() => {
-      pictures.push(faker.image.animals());
-    });
+    // const numberOfPics = Math.floor(Math.random() * 5 + 1);
+    // const pictures: profilePictureUrls = []; //Declared the 0 property to help TypeScript
+    // Array.from({ length: numberOfPics }).map(() => {
+    //   pictures.push(faker.image.animals());
+    // });
 
     //Biography
     const biography: string = faker.lorem.sentence(Math.floor(Math.random() * 20 + 5));
@@ -119,9 +142,9 @@ export class UserGeneratorComponent {
       ];
 
     const numberOfInterest = Math.floor(Math.random() * 2 + 1);
-    const interest: Interest[] = [];
+    const interests: Interest[] = [];
     this.shuffleArray([...Array(numberOfInterest).keys()]).forEach((index) => {
-      interest.push(searchCriteriaGenOptions.interest[index]);
+      interests.push(searchCriteriaGenOptions.interest[index]);
     });
 
     const numberOfQuestions = Math.floor(Math.random() * 2 + 1);
@@ -144,22 +167,22 @@ export class UserGeneratorComponent {
     this.shuffleArray([...Array(numberOfSocials).keys()]).forEach((index) => {
       socials.push(socialMediaGenOptions[index]);
     });
-    const socialMediaLinks: SocialMediaLinks = [];
+    const socialMediaLinks: SocialMediaLink[] = [];
     socials.forEach((social) => {
       socialMediaLinks.push({ socialMedia: social, link: "" });
     });
 
     // Creating user profile object
     const userProfile: profileFromDatabase = {
-      displayName,
+      firstName,
       dateOfBirth,
-      pictures,
+      picturesCount: this.picturesSelected.length,
       biography,
       university,
       degree,
       course,
       society,
-      interest,
+      interests,
       questions,
       onCampus,
       socialMediaLinks,
@@ -170,12 +193,9 @@ export class UserGeneratorComponent {
   }
 
   private newPrivateUser(): privateProfileFromDatabase {
-    const firstName: string = faker.name.firstName();
-    const lastName: string = faker.name.lastName();
-
     // TO MODIFY ONCE SETTINGS ARE FIGURED OUT
-    const settings = [];
-    const latestSearchCriteria: searchCriteriaFromDatabase = {
+    const settings: Settings = { showProfile: true };
+    const latestSearchCriteria: searchCriteria = {
       university: null,
       areaOfStudy: null,
       degree: null,
@@ -185,8 +205,6 @@ export class UserGeneratorComponent {
     };
 
     const privateUserProfile: privateProfileFromDatabase = {
-      firstName,
-      lastName,
       latestSearchCriteria,
       settings,
     };

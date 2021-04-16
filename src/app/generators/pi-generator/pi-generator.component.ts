@@ -7,7 +7,10 @@ import {
 import {
   mdFromDatabase,
   piStorage,
+  piStorageDefault,
+  SexualPreference,
   SwipeMode,
+  SwipeUserInfo,
   uidDatingStorage,
   uidFriendStorage,
 } from "src/app/interfaces/match-data.model";
@@ -18,10 +21,11 @@ import { Degree } from "../../interfaces/search-criteria.model";
 interface PiMap {
   uid: string;
   swipeMode: SwipeMode;
-  currentPI: number;
+  showProfile: Boolean;
+  percentile: number;
   degree: any;
   gender: "male" | "female" | "other";
-  sexualPreference: readonly ["male"] | readonly ["female"] | readonly ["male", "female"];
+  sexualPreference: SexualPreference;
 }
 
 @Component({
@@ -41,7 +45,8 @@ export class PiGeneratorComponent implements OnInit {
     const matchDataSnapshot = (await firestore
       .collection("matchData")
       .get()) as firebase.firestore.QuerySnapshot<mdFromDatabase>;
-    const uidStorageSnapshot = await firestore.collection("uidStorage").get();
+    const uidFriendStorageSnapshot = await firestore.collection("uidFriendStorage").get();
+    const uidDatingStorageSnapshot = await firestore.collection("uidDatingStorage").get();
     const piStorageSnapshot = await firestore.collection("piStorage").get();
 
     const batch = this.databaseService.activeDatabase.firestore().batch();
@@ -65,11 +70,12 @@ export class PiGeneratorComponent implements OnInit {
         if (!mdDoc.exists) return null;
         return {
           uid: mdDoc.id,
-          swipeMode:
-            matchDataGenOptions.swipeMode[
-              Math.floor(Math.random() * matchDataGenOptions.swipeMode.length)
-            ],
-          currentPI: Math.random(),
+          swipeMode: "dating" as const,
+          // matchDataGenOptions.swipeMode[
+          //   Math.floor(Math.random() * matchDataGenOptions.swipeMode.length)
+          // ],
+          percentile: Math.random(),
+          showProfile: true,
           degree: degreeMaps[mdDoc.id],
           gender: mdDoc.data().gender,
           sexualPreference: mdDoc.data().sexualPreference,
@@ -90,7 +96,8 @@ export class PiGeneratorComponent implements OnInit {
 
     // DELETING OLD PI AND UID STORAGE DOCUMENTS
     piStorageSnapshot.forEach((snap) => batch.delete(snap.ref));
-    uidStorageSnapshot.forEach((snap) => batch.delete(snap.ref));
+    uidDatingStorageSnapshot.forEach((snap) => batch.delete(snap.ref));
+    uidFriendStorageSnapshot.forEach((snap) => batch.delete(snap.ref));
 
     await batch.commit();
     console.log("PI and UID storage docs successfully updated");
@@ -99,17 +106,20 @@ export class PiGeneratorComponent implements OnInit {
   private getPiStorageFormat(piMaps: PiMap[]): piStorage {
     const uids: string[] = piMaps.map((map) => map.uid);
 
-    const doc: piStorage = { uids };
+    const doc: piStorageDefault = { uids, uidCount: uids.length };
 
     piMaps.forEach((map) => {
-      doc[map.uid] = {
+      const userInfo: SwipeUserInfo = {
         seenCount: 0,
         likeCount: 0,
-        currentPI: map.currentPI,
+        percentile: map.percentile,
+        showProfile: map.showProfile,
+        swipeMode: "dating",
         gender: map.gender,
         sexualPreference: map.sexualPreference,
         degree: map.degree,
       };
+      doc[map.uid] = userInfo;
     });
 
     return doc as piStorage;

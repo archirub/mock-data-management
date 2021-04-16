@@ -1,6 +1,8 @@
 {
   "name": "mock data management",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular",
   "id": "1c3ccc23"
 }

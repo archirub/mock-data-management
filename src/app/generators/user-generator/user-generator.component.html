@@ -1,4 +1,6 @@
 <ion-grid>
+  <ion-row><ion-col size="12" size-md="6" offset-md="3"> </ion-col> </ion-row>
+
   <ion-row>
     <ion-col size="12" size-md="6" offset-md="3">
       <ion-card class="ion-text-center">
@@ -6,7 +8,15 @@
 
         <ion-card-content class="vertical-align-content">
           <ion-input #usersToGenerate placeholder="Number of users"></ion-input>
-
+          <input
+            type="file"
+            (change)="onSelectPictures($event.target.files)"
+            multiple="multiple"
+            accept="image/*"
+            style="display: none"
+            #pictureUpload
+          />
+          <ion-button (click)="pictureUpload.click()">Pick profile pictures</ion-button>
           <ion-button (click)="onGenerateUsers(usersToGenerate.value)"
             >Generate</ion-button
           >
