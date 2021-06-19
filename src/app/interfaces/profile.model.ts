@@ -37,7 +37,7 @@ import { allowOptionalProp } from "./shared.model";
 export interface profileFromDatabase {
   firstName: string;
   dateOfBirth: firebase.firestore.Timestamp;
-  picturesCount: number;
+  pictureCount: number;
   biography: string;
 
   university: University;
@@ -122,4 +122,5 @@ export interface profileObject {
   profileSnapshot: profileSnapshot;
 }
 
-export type profileSnapshot = firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>;
+export type profileSnapshot =
+  firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>;

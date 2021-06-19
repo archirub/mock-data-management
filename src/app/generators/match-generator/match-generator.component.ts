@@ -55,13 +55,14 @@ export class MatchGeneratorComponent {
         `Only ${documentsFound} docs found with no corresponding match data (out of the ${amount} requested).`
       );
     }
-    const profileDocs = userRefs.docs as firebase.firestore.QueryDocumentSnapshot<profileFromDatabase>[];
+    const profileDocs =
+      userRefs.docs as firebase.firestore.QueryDocumentSnapshot<profileFromDatabase>[];
     //extracting user ID & social features from database at once
     const uidInterestMaps = new Array().concat(
       profileDocs.map((doc) => {
         return {
           uid: doc.id,
-          interest: doc.data().interest,
+          interests: doc.data().interests,
           degree: doc.data().degree,
         };
       })

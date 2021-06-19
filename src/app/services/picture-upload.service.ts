@@ -12,7 +12,7 @@ export class PictureUploadService {
   ) {}
 
   async uploadToFirebase(fileList: FileList, uid: string) {
-    await Promise.all(
+    return Promise.all(
       Object.keys(fileList).map(async (key, index) => {
         const file = fileList[index];
         const imageType = file.type.replace("image/", "");
@@ -23,5 +23,13 @@ export class PictureUploadService {
         return ref.put(file);
       })
     );
+  }
+
+  async uploadSingleToFirebase(file: File, uid: string, fileIndex) {
+    console.log("a", file);
+    const imageType = file.type.replace("image/", "");
+    const refString = "profilePictures/" + uid + "/" + fileIndex;
+    const ref = this.afStorage.ref(refString);
+    await ref.put(file);
   }
 }

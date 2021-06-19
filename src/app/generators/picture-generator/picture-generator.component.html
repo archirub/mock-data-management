@@ -1,0 +1,28 @@
+<ion-grid>
+  <ion-row>
+    <ion-col size="12" size-md="6" offset-md="3">
+      <ion-card class="ion-text-center">
+        <ion-card-title>Upload pictures</ion-card-title>
+
+        <ion-card-content class="vertical-align-content">
+          <ion-button (click)="pictureUpload.click()">Pick pictures</ion-button>
+
+          <ion-input #uid placeholder="ID of the user" type="text"></ion-input>
+          <input
+            type="file"
+            (change)="onSelectPictures($event.target.files)"
+            multiple="multiple"
+            accept="image/*"
+            style="display: none"
+            #pictureUpload
+          />
+
+          <ion-button (click)="onClickGenerate(uid.value)"
+            >Generate for specific user (insert uid)</ion-button
+          >
+        </ion-card-content>
+        <ion-button (click)="onClickGenerateForAll()">Generate for ALL USERS</ion-button>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>

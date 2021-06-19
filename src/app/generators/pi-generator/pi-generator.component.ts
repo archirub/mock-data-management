@@ -21,7 +21,7 @@ import { Degree } from "../../interfaces/search-criteria.model";
 interface PiMap {
   uid: string;
   swipeMode: SwipeMode;
-  showProfile: Boolean;
+  showProfile: boolean;
   percentile: number;
   degree: any;
   gender: "male" | "female" | "other";
@@ -125,9 +125,10 @@ export class PiGeneratorComponent implements OnInit {
     return doc as piStorage;
   }
 
-  private getUidStorageDocuments(
-    piMaps: PiMap[]
-  ): { uidDatingDocs: uidDatingStorage[]; uidFriendDoc: uidFriendStorage } {
+  private getUidStorageDocuments(piMaps: PiMap[]): {
+    uidDatingDocs: uidDatingStorage[];
+    uidFriendDoc: uidFriendStorage;
+  } {
     let uidDatingDocs: uidDatingStorage[] = [];
     let uidFriendDoc: uidFriendStorage;
 

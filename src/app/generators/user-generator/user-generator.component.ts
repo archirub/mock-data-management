@@ -32,6 +32,8 @@ import {
 } from "../../interfaces/search-criteria.model";
 import { PictureUploadService } from "src/app/services/picture-upload.service";
 import * as firebase from "firebase";
+import { AngularFireStorage } from "@angular/fire/storage";
+import { Observable } from "rxjs";
 
 @Component({
   selector: "app-user-generator",
@@ -44,8 +46,67 @@ export class UserGeneratorComponent {
   constructor(
     private environment: EnvironmentService,
     private name: NameService,
-    private pictureUpload: PictureUploadService
+    private pictureUploadService: PictureUploadService,
+    private afStorage: AngularFireStorage
   ) {}
+
+  async getProfilePicturesFirebase(uid: string, numberOfPictures: number) {
+    uid = "05z5xtqmJYWUgA5OL23ablnxBxv2";
+    numberOfPictures = 1;
+    const refStrings = Array.from({ length: numberOfPictures }).map(
+      (value, index) => "profilePictures/" + uid + "/" + index
+    );
+
+    const kaka = await Promise.all(
+      refStrings.map(async (refString) => {
+        const ref = this.afStorage.ref(refString);
+        const url: string = await ref
+          .getDownloadURL()
+          .toPromise()
+          .then((url) => {
+            // `url` is the download URL for 'images/stars.jpg'
+
+            // This can be downloaded directly:
+            // const xhr = new XMLHttpRequest();
+            // xhr.responseType = "blob";
+            // xhr.onload = (event) => {
+            //   const blob = xhr.response;
+            //   console.log("b", blob);
+            // };
+            // xhr.open("GET", url);
+            // xhr.send();
+            // console.log(xhr);
+
+            // Or inserted into an <img> element
+
+            return url;
+          });
+
+        const blob = await fetch(url).then((res) => res.blob());
+        this.blobToBase64(blob).subscribe((a) => {
+          console.log("eyo", (a as string).length);
+          // const img = document.getElementById("testimage");
+          console.log("bruv");
+          // img.setAttribute("src", a as string);
+        });
+
+        // console.log("asas", fileReader.result);
+        // .then((xhr) => console.log(xhr.response));
+      })
+    );
+  }
+
+  private blobToBase64(blob: Blob): Observable<{}> {
+    const fileReader = new FileReader();
+    const observable = new Observable((observer) => {
+      fileReader.onloadend = () => {
+        observer.next(fileReader.result);
+        observer.complete();
+      };
+    });
+    fileReader.readAsDataURL(blob);
+    return observable;
+  }
 
   public onSelectPictures(fileList: FileList) {
     if (!fileList) return;
@@ -60,9 +121,9 @@ export class UserGeneratorComponent {
       return console.error("You must enter a valid quantity of user profiles");
     }
 
-    if (!this.picturesSelected) {
-      return console.error("Select pictures first");
-    }
+    // if (!this.picturesSelected) {
+    //   return console.error("Select pictures first");
+    // }
 
     // await this.environment.activeDatabase.auth()
     const getUIDs = this.environment.activeDatabase
@@ -76,7 +137,7 @@ export class UserGeneratorComponent {
     await Promise.all(
       userIDs.map(async (uid) => {
         return Promise.all([
-          this.pictureUpload.uploadToFirebase(this.picturesSelected, uid),
+          // this.pictureUploadService.uploadToFirebase(this.picturesSelected, uid),
 
           database
             .collection(this.name.profileCollection)
@@ -104,7 +165,7 @@ export class UserGeneratorComponent {
     );
 
     //Map of pictures
-    // const numberOfPics = Math.floor(Math.random() * 5 + 1);
+    const pictureCount = Math.floor(Math.random() * 5 + 1);
     // const pictures: profilePictureUrls = []; //Declared the 0 property to help TypeScript
     // Array.from({ length: numberOfPics }).map(() => {
     //   pictures.push(faker.image.animals());
@@ -176,7 +237,7 @@ export class UserGeneratorComponent {
     const userProfile: profileFromDatabase = {
       firstName,
       dateOfBirth,
-      picturesCount: this.picturesSelected.length,
+      pictureCount,
       biography,
       university,
       degree,

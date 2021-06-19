@@ -12,6 +12,7 @@ import { MatchGeneratorComponent } from "./../generators/match-generator/match-g
 import { ChatGeneratorComponent } from "./../generators/chat-generator/chat-generator.component";
 import { AccountGeneratorComponent } from "../generators/account-generator/account-generator.component";
 import { PiGeneratorComponent } from "../generators/pi-generator/pi-generator.component";
+import { PictureGeneratorComponent } from "../generators/picture-generator/picture-generator.component";
 
 @NgModule({
   imports: [CommonModule, FormsModule, IonicModule, HomePageRoutingModule],
@@ -23,6 +24,7 @@ import { PiGeneratorComponent } from "../generators/pi-generator/pi-generator.co
     MatchGeneratorComponent,
     PiGeneratorComponent,
     AccountGeneratorComponent,
+    PictureGeneratorComponent,
   ],
 })
 export class HomePageModule {}
