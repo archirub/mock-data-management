@@ -135,6 +135,7 @@ export class UserGeneratorComponent {
 
     // Generating profiles
     await Promise.all(
+      //yoyo
       userIDs.map(async (uid) => {
         return Promise.all([
           // this.pictureUploadService.uploadToFirebase(this.picturesSelected, uid),
