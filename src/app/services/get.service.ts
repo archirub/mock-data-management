@@ -2,20 +2,18 @@ import { Injectable } from "@angular/core";
 
 import { EnvironmentService } from "./environment.service";
 import { NameService } from "./name.service";
-import { FieldPath, Query } from "@angular/fire/firestore";
+import {
+  DocumentSnapshot,
+  FieldPath,
+  Query,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
+} from "@angular/fire/firestore";
+import { profileFromDatabase } from "../interfaces/profile.model";
 
 type whereObject = [
   string | FieldPath,
-  (
-    | "<"
-    | "<="
-    | "=="
-    | ">="
-    | ">"
-    | "array-contains"
-    | "in"
-    | "array-contains-any"
-  ),
+  "<" | "<=" | "==" | ">=" | ">" | "array-contains" | "in" | "array-contains-any",
   any
 ];
 
@@ -35,16 +33,18 @@ export class GetService {
     .firestore()
     .collection(this.name.matchCollection);
 
-  constructor(
-    private environment: EnvironmentService,
-    private name: NameService
-  ) {}
+  constructor(private environment: EnvironmentService, private name: NameService) {}
 
-  profile(userID: string) {
-    return this.profileCollection.doc(userID).get();
+  profile(userID: string): Promise<DocumentSnapshot<profileFromDatabase>> {
+    return this.profileCollection.doc(userID).get() as Promise<
+      DocumentSnapshot<profileFromDatabase>
+    >;
   }
 
-  profiles(where?: whereObject[], limit?: number) {
+  profiles(
+    where?: whereObject[],
+    limit?: number
+  ): Promise<QuerySnapshot<profileFromDatabase>> {
     let query: Query = this.profileCollection;
     if (where) {
       where.forEach((where) => {
@@ -54,7 +54,7 @@ export class GetService {
     if (limit) {
       query = query.limit(limit);
     }
-    return query.get();
+    return query.get() as Promise<QuerySnapshot<profileFromDatabase>>;
   }
 
   chats(where?: whereObject[], limit?: number) {

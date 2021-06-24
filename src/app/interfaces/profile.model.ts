@@ -12,6 +12,7 @@ import {
 import * as firebase from "firebase";
 import { CameraPhoto } from "@capacitor/core";
 import { allowOptionalProp } from "./shared.model";
+import { QueryDocumentSnapshot } from "@angular/fire/firestore";
 
 // export interface profile {
 //   uid: string;
@@ -122,5 +123,4 @@ export interface profileObject {
   profileSnapshot: profileSnapshot;
 }
 
-export type profileSnapshot =
-  firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>;
+export type profileSnapshot = QueryDocumentSnapshot<profileFromDatabase>;

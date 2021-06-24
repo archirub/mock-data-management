@@ -4,7 +4,6 @@ import { messageFromDatabase } from "./message.model";
 export interface userSnippet {
   uid: string;
   name: string;
-  picture: string;
 }
 export interface chatFromDatabase {
   uids: string[];

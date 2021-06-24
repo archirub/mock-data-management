@@ -13,7 +13,8 @@ import {
   messageReaction,
   messageReactionOptions,
 } from "./../../interfaces/message.model";
-import { profileObject } from "../../interfaces/profile.model";
+import { profileFromDatabase, profileObject } from "../../interfaces/profile.model";
+import { QueryDocumentSnapshot } from "@angular/fire/firestore";
 
 @Component({
   selector: "app-chat-generator",
@@ -67,8 +68,8 @@ export class ChatGeneratorComponent {
       [["hasMatchDocument", "==", true]],
       numberOfChats + 1
     );
-    const theirProfiles: firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>[] =
-      theirProfiles_query.docs;
+    const theirProfiles =
+      theirProfiles_query.docs as QueryDocumentSnapshot<profileFromDatabase>[];
     theirProfiles.splice(
       theirProfiles.findIndex((profile) => {
         if (profile.id === myID) {
@@ -145,66 +146,61 @@ export class ChatGeneratorComponent {
     messageAmount: number
   ): Promise<void> {
     messageAmount = +messageAmount;
-    try {
-      const batch = this.environment.activeDatabase.firestore().batch();
-      let myMatches: null | string[] = myProfile.profileSnapshot.data().matches;
+    const batch = this.environment.activeDatabase.firestore().batch();
 
-      const myMatchData = await this.environment.activeDatabase
-        .firestore()
-        .collection(this.name.matchCollection)
-        .doc(myProfile.ID)
-        .get();
+    const myMatchData = await this.environment.activeDatabase
+      .firestore()
+      .collection(this.name.matchCollection)
+      .doc(myProfile.ID)
+      .get();
 
-      if (!myMatchData.exists) {
-        console.error("Document contains no data / doesn't exist");
-      }
-
-      await Promise.all(
-        theirProfiles.map(async (hisProfile) => {
-          const chat = this.newChat(myProfile, hisProfile, messageAmount);
-
-          // const chatID: string = this.getChatID(myProfile.ID, hisProfile.ID);
-          // const chatRef = this.get.chatCollection.doc(chatID.docs[0].id);
-          const chatRef = this.get.chatCollection.doc();
-          batch.set(chatRef, chat);
-
-          // myMatches = this.updateMatches(myMatches, hisProfile.ID);
-
-          // batch.update(myProfile.profileSnapshot.ref, { matchedUsers: myMatches });
-
-          batch.update(myMatchData.ref, {
-            [`matchedUsers.${hisProfile.ID}`]: {
-              exists: true,
-              date: firebase.firestore.Timestamp.fromDate(new Date()),
-            },
-          });
-
-          // let hisMatches: null | string[] = hisProfile.profileSnapshot.data().matches;
-
-          // hisMatches = this.updateMatches(hisMatches, myProfile.ID);
-
-          // batch.update(hisProfile.profileSnapshot.ref, { matchedUsers: hisMatches });
-
-          const hisMatchDataRef = this.environment.activeDatabase
-            .firestore()
-            .collection(this.name.matchCollection)
-            .doc(hisProfile.ID);
-
-          batch.update(hisMatchDataRef, {
-            [`matchedUsers.${myProfile.ID}`]: {
-              exists: true,
-              date: firebase.firestore.Timestamp.fromDate(new Date()),
-            },
-          });
-        })
-      );
-
-      await batch.commit();
-
-      console.log("Chat creation complete.");
-    } catch (e) {
-      throw new Error(`Error during generateChats: ${e}`);
+    if (!myMatchData.exists) {
+      console.error("Document contains no data / doesn't exist");
     }
+
+    await Promise.all(
+      theirProfiles.map(async (hisProfile) => {
+        const chat = this.newChat(myProfile, hisProfile, messageAmount);
+
+        // const chatID: string = this.getChatID(myProfile.ID, hisProfile.ID);
+        // const chatRef = this.get.chatCollection.doc(chatID.docs[0].id);
+        const chatRef = this.get.chatCollection.doc();
+        batch.set(chatRef, chat);
+
+        // myMatches = this.updateMatches(myMatches, hisProfile.ID);
+
+        // batch.update(myProfile.profileSnapshot.ref, { matchedUsers: myMatches });
+
+        batch.update(myMatchData.ref, {
+          [`matchedUsers.${hisProfile.ID}`]: {
+            exists: true,
+            date: firebase.firestore.Timestamp.fromDate(new Date()),
+          },
+        });
+
+        // let hisMatches: null | string[] = hisProfile.profileSnapshot.data().matches;
+
+        // hisMatches = this.updateMatches(hisMatches, myProfile.ID);
+
+        // batch.update(hisProfile.profileSnapshot.ref, { matchedUsers: hisMatches });
+
+        const hisMatchDataRef = this.environment.activeDatabase
+          .firestore()
+          .collection(this.name.matchCollection)
+          .doc(hisProfile.ID);
+
+        batch.update(hisMatchDataRef, {
+          [`matchedUsers.${myProfile.ID}`]: {
+            exists: true,
+            date: firebase.firestore.Timestamp.fromDate(new Date()),
+          },
+        });
+      })
+    );
+
+    await batch.commit();
+
+    console.log("Chat creation complete.");
   }
 
   /**
@@ -275,24 +271,21 @@ export class ChatGeneratorComponent {
     const messageCount = messageAmount ? +messageAmount : 10;
 
     const user1Name: string = user1.profileSnapshot.data().firstName;
-    const user1Picture: string = user1.profileSnapshot.data().pictures[0];
     const user2Name: string = user2.profileSnapshot.data().firstName;
-    const user2Picture: string = user2.profileSnapshot.data().pictures[0];
     let messages: messageFromDatabase[] = [];
 
     Array.from({ length: messageCount }).forEach(() => {
       messages.push(this.newMessage(user1, user2));
     });
 
-    const lastInteracted: firebase.firestore.Timestamp = this.getLastMessageTime(
-      messages
-    );
+    const lastInteracted: firebase.firestore.Timestamp =
+      this.getLastMessageTime(messages);
 
     const chatObject: chatFromDatabase = {
       uids: this.sortUIDs([user1.ID, user2.ID]),
       userSnippets: [
-        { uid: user1.ID, name: user1Name, picture: user1Picture },
-        { uid: user2.ID, name: user2Name, picture: user2Picture },
+        { uid: user1.ID, name: user1Name },
+        { uid: user2.ID, name: user2Name },
       ],
       messages,
       batchVolume: 0,
