@@ -23,8 +23,9 @@ import {
   socialMediaGenOptions,
 } from "../../interfaces/generating-options";
 import {
+  AreaOfStudy,
   Degree,
-  Interest,
+  Interests,
   OnCampus,
   searchCriteria,
   SocietyCategory,
@@ -186,10 +187,12 @@ export class UserGeneratorComponent {
       ];
 
     //Course
-    const course: string =
-      socialFeatureGenOptions.course[
-        Math.floor(Math.random() * socialFeatureGenOptions.course.length)
+    const areaOfStudy: AreaOfStudy =
+      socialFeatureGenOptions.areaOfStudy[
+        Math.floor(Math.random() * socialFeatureGenOptions.areaOfStudy.length)
       ];
+
+    const course = "some course";
 
     //Societies
     //Selecting just one society right now, should be adjusted to something like 1 to 5 different ones
@@ -198,13 +201,14 @@ export class UserGeneratorComponent {
     //     Math.floor(Math.random() * searchCriteriaOptions.societyCategory.length)
     //   ],
     // ] as SocietyCategory[];
-    const society: SocietyCategory =
+    const societyCategory: SocietyCategory =
       searchCriteriaGenOptions.societyCategory[
         Math.floor(Math.random() * searchCriteriaGenOptions.societyCategory.length)
       ];
+    const society = "some society";
 
     const numberOfInterest = Math.floor(Math.random() * 2 + 1);
-    const interests: Interest[] = [];
+    const interests: Interests[] = [];
     this.shuffleArray([...Array(numberOfInterest).keys()]).forEach((index) => {
       interests.push(searchCriteriaGenOptions.interest[index]);
     });
@@ -244,6 +248,8 @@ export class UserGeneratorComponent {
       degree,
       course,
       society,
+      societyCategory,
+      areaOfStudy,
       interests,
       questions,
       onCampus,

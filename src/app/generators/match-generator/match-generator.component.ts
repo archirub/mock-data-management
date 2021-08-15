@@ -18,7 +18,7 @@ import {
 import {
   Degree,
   AreaOfStudy,
-  Interest,
+  Interests,
   SearchFeatures,
   SocietyCategory,
   University,
@@ -64,6 +64,8 @@ export class MatchGeneratorComponent {
           uid: doc.id,
           interests: doc.data().interests,
           degree: doc.data().degree,
+          areaOfStudy: doc.data().areaOfStudy,
+          societyCategory: doc.data().societyCategory,
         };
       })
     );
@@ -71,7 +73,13 @@ export class MatchGeneratorComponent {
     // Creating new match docs
     // & Adding matches from profile document to matchDataDoc's matches array
     const matchDataDocs = uidInterestMaps.map((map, index) =>
-      this.newMatch(map.uid, map.interest, map.degree)
+      this.newMatch(
+        map.uid,
+        map.interest,
+        map.degree,
+        map.areaOfStudy,
+        map.societyCategory
+      )
     );
 
     const batch = this.databaseService.activeDatabase.firestore().batch();
@@ -116,8 +124,10 @@ export class MatchGeneratorComponent {
 
   private newMatch(
     userID: string,
-    interest_: Interest[],
-    degree: Degree
+    interests: Interests[],
+    degree: Degree,
+    areaOfStudy: AreaOfStudy,
+    societyCategory: SocietyCategory
   ): {
     userID: string;
     mdObject: mdFromDatabase;
@@ -143,15 +153,7 @@ export class MatchGeneratorComponent {
       Math.floor(Math.random() * searchCriteriaGenOptions.university.length)
     ] as University;
 
-    const areaOfStudy: AreaOfStudy = searchCriteriaGenOptions.areaOfStudy[
-      Math.floor(Math.random() * searchCriteriaGenOptions.areaOfStudy.length)
-    ] as AreaOfStudy;
-
-    const societyCategory: SocietyCategory = searchCriteriaGenOptions.societyCategory[
-      Math.floor(Math.random() * searchCriteriaGenOptions.societyCategory.length)
-    ] as SocietyCategory;
-
-    const interest: Interest[] = interest_ || [];
+    const interest: Interests[] = interests || [];
 
     const onCampus: OnCampus =
       searchCriteriaGenOptions.onCampus[
@@ -163,7 +165,7 @@ export class MatchGeneratorComponent {
       areaOfStudy,
       degree,
       societyCategory,
-      interest,
+      interests: interests ?? [],
       onCampus,
     };
 

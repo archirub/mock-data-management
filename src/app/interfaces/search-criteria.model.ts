@@ -77,16 +77,16 @@ export const searchCriteriaNames: (keyof searchCriteria)[] = [
 // same as searchCriteria but some SC can be multiple i.e. for interest where
 // we have an array of interest
 export type SearchFeatures = Omit<searchCriteria, "interest"> & {
-  interest: typeof searchCriteriaOptions["interest"][number][];
+  interests: typeof searchCriteriaOptions["interest"][number][];
 };
 
 export type University = typeof searchCriteriaOptions.university[number];
 export type AreaOfStudy = typeof searchCriteriaOptions.areaOfStudy[number]; //MOCK DATA
 export type Degree = typeof searchCriteriaOptions.degree[number];
 export type SocietyCategory = typeof searchCriteriaOptions.societyCategory[number];
-export type Interest = typeof searchCriteriaOptions.interest[number];
+export type Interests = typeof searchCriteriaOptions.interest[number];
 export type Path = typeof assetsInterestsPath[number];
-export type InterestAndPath = { name: Interest; path: Path };
+export type InterestAndPath = { name: Interests; path: Path };
 export type OnCampus = typeof searchCriteriaOptions.onCampus[number];
 
 export type Criterion = keyof typeof searchCriteriaOptions;

@@ -17,15 +17,8 @@ export const searchCriteriaGenOptions = {
 
 export const socialFeatureGenOptions = {
   university: searchCriteriaOptions.university,
-  course: [
-    "Physics",
-    "Mathematics",
-    "Politics",
-    "Computer Science",
-    "Liberal Arts",
-    "Arts & Sciences",
-  ], // not a pre set (unlike the searchCriteriaOptions), these are just for data generating, course is user inputed (as of now)
-  societes: searchCriteriaOptions.societyCategory,
+  areaOfStudy: searchCriteriaOptions.areaOfStudy, // not a pre set (unlike the searchCriteriaOptions), these are just for data generating, course is user inputed (as of now)
+  societyCategory: searchCriteriaOptions.societyCategory,
   questions: questionsOptions,
 };
 

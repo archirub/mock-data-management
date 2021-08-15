@@ -5,7 +5,8 @@ import {
   searchCriteria,
   OnCampus,
   Degree,
-  Interest,
+  Interests,
+  AreaOfStudy,
 } from "./search-criteria.model";
 
 // FOR CLOUD FUNCTION DEPLOYMENT, otherwise it doesn't recognize the type declaration below
@@ -45,13 +46,14 @@ export interface profileFromDatabase {
   degree: Degree;
   course: string;
   society: string;
+  societyCategory: SocietyCategory;
+  areaOfStudy: AreaOfStudy;
 
-  interests: Interest[]; // This needs to be changed in the database
+  interests: Interests[]; // This needs to be changed in the database
   questions: QuestionAndAnswer[];
   onCampus: OnCampus;
 
   socialMediaLinks: SocialMediaLink[];
-
   hasMatchDocument: boolean;
 }
 
