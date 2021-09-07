@@ -15,8 +15,8 @@ import {
   uidFriendStorage,
 } from "src/app/interfaces/match-data.model";
 import { profileFromDatabase } from "src/app/interfaces/profile.model";
-import { EnvironmentService } from "../../services/environment.service";
-import { Degree } from "../../interfaces/search-criteria.model";
+import { EnvironmentService } from "../../../services/environment.service";
+import { Degree } from "../../../interfaces/search-criteria.model";
 
 interface PiMap {
   uid: string;

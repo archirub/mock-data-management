@@ -2,11 +2,11 @@ import {
   QuestionAndAnswer,
   socialMedia,
   SocialMediaLink,
-} from "./../../interfaces/profile.model";
+} from "../../../interfaces/profile.model";
 import { Component } from "@angular/core";
 
-import { EnvironmentService } from "../../services/environment.service";
-import { NameService } from "./../../services/name.service";
+import { EnvironmentService } from "../../../services/environment.service";
+import { NameService } from "../../../services/name.service";
 
 import * as faker from "faker";
 
@@ -16,12 +16,12 @@ import {
   questionsOptions,
   Question,
   Settings,
-} from "../../interfaces/profile.model";
+} from "../../../interfaces/profile.model";
 import {
   searchCriteriaGenOptions,
   socialFeatureGenOptions,
   socialMediaGenOptions,
-} from "../../interfaces/generating-options";
+} from "../../../interfaces/generating-options";
 import {
   AreaOfStudy,
   Degree,
@@ -30,7 +30,7 @@ import {
   searchCriteria,
   SocietyCategory,
   University,
-} from "../../interfaces/search-criteria.model";
+} from "../../../interfaces/search-criteria.model";
 import { PictureUploadService } from "src/app/services/picture-upload.service";
 import * as firebase from "firebase";
 import { AngularFireStorage } from "@angular/fire/storage";

@@ -1,34 +1,57 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title> Mock Data Management </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
   <ion-grid>
     <ion-row>
       <ion-col size="12" size-md="6" offset-md="3">
-        <ion-segment (ionChange)="onChangeDatabase($event)" value="development">
-          <ion-segment-button value="development">
-            <ion-label>Development database</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="production">
-            <ion-label>Production database</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+        <ion-card>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6" offset-md="3">
+                <h1>SELECT DATABASE</h1>
+              </ion-col></ion-row
+            >
+            <ion-row>
+              <ion-col size="12" size-md="6" offset-md="3">
+                <ion-segment (ionChange)="onChangeDatabase($event)" value="development">
+                  <ion-segment-button value="development">
+                    <ion-label>Development</ion-label>
+                  </ion-segment-button>
+                  <ion-segment-button value="production">
+                    <ion-label>Production</ion-label>
+                  </ion-segment-button>
+                </ion-segment>
+              </ion-col></ion-row
+            ></ion-grid
+          >
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <ion-card (click)="navigateTo('mock-data')">
+          <ion-item>
+            <h3>Manage mock data</h3>
+          </ion-item>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-card (click)="navigateTo('user-report')">
+          <ion-item>
+            <h3>Manage user reports</h3>
+          </ion-item>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-card (click)="navigateTo('bug-report')">
+          <ion-item>
+            <h3>Manage bug reports</h3>
+          </ion-item>
+        </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
-
-  <!-- <ion-button (click)="sendPic()">
-    <ion-icon name="camera"></ion-icon>
-    <ion-label>Photo</ion-label>
-  </ion-button> -->
-  <app-test-generator></app-test-generator>
-  <app-account-generator></app-account-generator>
-  <app-user-generator></app-user-generator>
-  <app-picture-generator></app-picture-generator>
-  <app-match-generator></app-match-generator>
-  <app-pi-generator></app-pi-generator>
-  <app-chat-generator></app-chat-generator>
 </ion-content>

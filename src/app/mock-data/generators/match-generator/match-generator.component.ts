@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 
-import { EnvironmentService } from "../../services/environment.service";
+import { EnvironmentService } from "../../../services/environment.service";
 import { NameService } from "src/app/services/name.service";
 
 import {
@@ -10,11 +10,11 @@ import {
   mdFriendPickingFromDatabase,
   SexualPreference,
   SwipeMode,
-} from "../../interfaces/match-data.model";
+} from "../../../interfaces/match-data.model";
 import {
   matchDataGenOptions,
   searchCriteriaGenOptions,
-} from "../../interfaces/generating-options";
+} from "../../../interfaces/generating-options";
 import {
   Degree,
   AreaOfStudy,
@@ -23,7 +23,7 @@ import {
   SocietyCategory,
   University,
   OnCampus,
-} from "../../interfaces/search-criteria.model";
+} from "../../../interfaces/search-criteria.model";
 import { profileFromDatabase } from "src/app/interfaces/profile.model";
 
 @Component({

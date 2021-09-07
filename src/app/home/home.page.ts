@@ -7,6 +7,7 @@ const { CameraResultType, CameraSource, Capacitor, Photos } = Plugins;
 import { EnvironmentService } from "../services/environment.service";
 import * as faker from "faker";
 import { PictureUploadService } from "../services/picture-upload.service";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-home",
@@ -17,7 +18,8 @@ export class HomePage {
   constructor(
     private environment: EnvironmentService,
     private afStorage: AngularFireStorage,
-    private pictureUpload: PictureUploadService
+    private pictureUpload: PictureUploadService,
+    private router: Router
   ) {}
 
   public onChangeDatabase(event) {
@@ -29,6 +31,10 @@ export class HomePage {
     const uid = "123abc";
     await this.pictureUpload.uploadToFirebase(event, uid);
     console.log(event);
+  }
+
+  navigateTo(url: string) {
+    this.router.navigateByUrl("/home/" + url);
   }
 
   public async sendPic() {

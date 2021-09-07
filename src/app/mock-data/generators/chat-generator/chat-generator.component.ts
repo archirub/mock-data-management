@@ -1,19 +1,19 @@
 import { Component } from "@angular/core";
 
-import { EnvironmentService } from "../../services/environment.service";
-import { NameService } from "../../services/name.service";
+import { EnvironmentService } from "../../../services/environment.service";
+import { NameService } from "../../../services/name.service";
 import { GetService } from "src/app/services/get.service";
 
 import * as faker from "faker";
 import * as firebase from "firebase";
 
-import { chatFromDatabase } from "./../../interfaces/chat.model";
+import { chatFromDatabase } from "../../../interfaces/chat.model";
 import {
   messageFromDatabase,
   messageReaction,
   messageReactionOptions,
-} from "./../../interfaces/message.model";
-import { profileFromDatabase, profileObject } from "../../interfaces/profile.model";
+} from "../../../interfaces/message.model";
+import { profileFromDatabase, profileObject } from "../../../interfaces/profile.model";
 import { QueryDocumentSnapshot } from "@angular/fire/firestore";
 
 @Component({

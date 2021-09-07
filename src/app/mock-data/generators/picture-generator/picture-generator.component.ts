@@ -26,7 +26,7 @@ export class PictureGeneratorComponent implements OnInit {
 
   public onClickGenerate(uid: string) {
     if (!this.picturesSelected || !uid)
-      console.error("You must both input a uid and select at least one picture");
+      return console.error("You must both input a uid and select at least one picture");
     this.pictureUploadService
       .uploadToFirebase(this.picturesSelected, uid)
       .then(() => console.log("Pictures successfully uploaded"));
