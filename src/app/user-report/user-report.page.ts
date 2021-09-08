@@ -23,8 +23,8 @@ export class UserReportPage implements OnInit {
   async fetchReports() {
     const query = await this.firestore.firestore.collection("userReports").get();
     this.userReports = query.docs
-      .map((d) =>
-        d.exists ? { id: d.id, report: d.data() as UserReport, ref: d.ref } : null
+      .map((doc) =>
+        doc.exists ? { id: doc.id, report: doc.data() as UserReport, ref: doc.ref } : null
       )
       .filter(Boolean);
   }

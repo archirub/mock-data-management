@@ -301,14 +301,16 @@ export class ChatGeneratorComponent {
     }
 
     const senderID = Math.round(Math.random()) === 1 ? user1.ID : user2.ID;
+    const uids = this.sortUIDs([user1.ID, user2.ID]);
     // SHOULD TIME BE RANDOM OR BE NEW DATE.NOW
     const time = firebase.firestore.Timestamp.fromDate(faker.date.recent(10));
-    const seen = false;
+    // const seen = false;
     const content = faker.lorem.sentence();
-    const reaction: messageReaction =
-      messageReactionOptions[Math.floor(Math.random() * messageReactionOptions.length)];
+    // const reaction: messageReaction =
+    //   messageReactionOptions[Math.floor(Math.random() * messageReactionOptions.length)];
 
     const message: messageFromDatabase = {
+      uids,
       senderID,
       // seen,
       time,
