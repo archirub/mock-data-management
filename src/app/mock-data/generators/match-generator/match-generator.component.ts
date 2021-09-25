@@ -21,10 +21,9 @@ import {
   Interests,
   SearchFeatures,
   SocietyCategory,
-  University,
-  OnCampus,
 } from "../../../interfaces/search-criteria.model";
 import { profileFromDatabase } from "src/app/interfaces/profile.model";
+import { UniversityName } from "src/app/interfaces/universities.model";
 
 @Component({
   selector: "app-match-generator",
@@ -149,16 +148,16 @@ export class MatchGeneratorComponent {
     // ];
 
     //University
-    const university: University = searchCriteriaGenOptions.university[
+    const university: UniversityName = searchCriteriaGenOptions.university[
       Math.floor(Math.random() * searchCriteriaGenOptions.university.length)
-    ] as University;
+    ] as UniversityName;
 
     const interest: Interests[] = interests || [];
 
-    const onCampus: OnCampus =
-      searchCriteriaGenOptions.onCampus[
-        Math.floor(Math.random() * searchCriteriaGenOptions.onCampus.length)
-      ];
+    // const onCampus: OnCampus =
+    //   searchCriteriaGenOptions.onCampus[
+    //     Math.floor(Math.random() * searchCriteriaGenOptions.onCampus.length)
+    //   ];
 
     const searchFeatures: SearchFeatures = {
       university,
@@ -166,7 +165,6 @@ export class MatchGeneratorComponent {
       degree,
       societyCategory,
       interests: interests ?? [],
-      onCampus,
     };
 
     // matchDataGenOptions.showProfile[

@@ -1,48 +1,67 @@
 import {
-  InterestAndPath,
   SocietyCategory,
-  University,
   searchCriteria,
-  OnCampus,
   Degree,
   Interests,
   AreaOfStudy,
 } from "./search-criteria.model";
 
 // FOR CLOUD FUNCTION DEPLOYMENT, otherwise it doesn't recognize the type declaration below
-import * as firebase from "firebase";
 import { CameraPhoto } from "@capacitor/core";
 import { allowOptionalProp } from "./shared.model";
-import { QueryDocumentSnapshot } from "@angular/fire/firestore";
+import { Gender, SexualPreference, SwipeMode } from "./match-data.model";
+import { UniversityName } from "./universities.model";
+import { DocumentData, QueryDocumentSnapshot } from "@angular/fire/firestore";
 
-// export interface profile {
-//   uid: string;
-//   firstName: string;
-//   dateOfBirth: Date;
-//   pictures: profilePicturePaths;
-//   biography: string;
-//   university: University;
-//   degree: Degree;
-//   course: string;
-//   society: string;
-//   interests: Interest[];
-//   questions: QuestionAndAnswer[];
-//   onCampus: OnCampus;
-//   socialMediaLinks: SocialMediaLink[];
-// }
+// IF SUCH CONSTANTS ARE CHANGED, MAKE SURE TO CHANGE THE SECURITY RULES ACCORDINGLY
+export const MAX_PROFILE_PICTURES_COUNT = 6;
+export const MAX_PROFILE_QUESTIONS_COUNT = 3;
+export const MAX_PROFILE_INTERESTS = 6;
 
-// export interface user extends profile {
-//   settings: Settings;
-//   latestSearchCriteria: searchCriteria;
-// }
+export interface profile {
+  uid: string;
+  firstName: string;
+  dateOfBirth: Date;
+  pictureUrls: string[];
+  biography: string;
+  university: UniversityName;
+  degree: Degree;
+  course: string;
+  societyCategory: SocietyCategory;
+  areaOfStudy: AreaOfStudy;
+  society: string;
+  interests: Interests[];
+  questions: QuestionAndAnswer[];
+  // onCampus: OnCampus;
+  socialMediaLinks: SocialMediaLink[];
+}
+
+export interface editableProfileFields {
+  biography: string | null;
+  course: string | null;
+  areaOfStudy: AreaOfStudy | null;
+  society: string | null;
+  societyCategory: SocietyCategory | null;
+  interests: Interests[] | null;
+  questions: QuestionAndAnswer[] | null;
+}
+
+export interface appUser extends profile {
+  societyCategory: SocietyCategory;
+  areaOfStudy: AreaOfStudy;
+  sexualPreference: SexualPreference;
+  gender: Gender;
+  // swipeMode: SwipeMode;
+  settings: Settings;
+  latestSearchCriteria: allowOptionalProp<searchCriteria>;
+}
 
 export interface profileFromDatabase {
   firstName: string;
   dateOfBirth: firebase.firestore.Timestamp;
-  pictureCount: number;
   biography: string;
 
-  university: University;
+  university: UniversityName;
   degree: Degree;
   course: string;
   society: string;
@@ -51,7 +70,7 @@ export interface profileFromDatabase {
 
   interests: Interests[]; // This needs to be changed in the database
   questions: QuestionAndAnswer[];
-  onCampus: OnCampus;
+  // onCampus: OnCampus;
 
   socialMediaLinks: SocialMediaLink[];
   hasMatchDocument: boolean;
@@ -65,7 +84,7 @@ export interface privateProfileFromDatabase {
 // TO DEFINE BUT SHOWPROFILE MUST BE IN THERE
 const settingNameOption = ["showProfile"] as const;
 export type settingName = typeof settingNameOption[number];
-export type Settings = { [settingName: string]: any };
+export type Settings = { showProfile: boolean };
 
 export const questionsOptions = [
   "The best place for coffee is" as const,
@@ -118,11 +137,10 @@ export type profilePicturePaths = [
   string?,
   string?
 ];
-export type photoObject = CameraPhoto;
 
 export interface profileObject {
   ID: string;
   profileSnapshot: profileSnapshot;
 }
 
-export type profileSnapshot = QueryDocumentSnapshot<profileFromDatabase>;
+export type profileSnapshot = QueryDocumentSnapshot<DocumentData>;

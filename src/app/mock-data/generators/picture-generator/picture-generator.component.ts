@@ -41,9 +41,10 @@ export class PictureGeneratorComponent implements OnInit {
     await Promise.all(
       allProfileDocs.map(async (doc) => {
         const profileData = doc.data();
+        const pictureCount = Math.floor(Math.random() * 5 + 1);
         console.log(profileData);
         await Promise.all(
-          Array.from({ length: profileData.pictureCount }).map(async (v, i) => {
+          Array.from({ length: pictureCount }).map(async (v, i) => {
             console.log("broici");
             const pictureSelected =
               this.picturesSelected[

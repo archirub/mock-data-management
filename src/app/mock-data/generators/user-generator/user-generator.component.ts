@@ -26,15 +26,14 @@ import {
   AreaOfStudy,
   Degree,
   Interests,
-  OnCampus,
   searchCriteria,
   SocietyCategory,
-  University,
 } from "../../../interfaces/search-criteria.model";
 import { PictureUploadService } from "src/app/services/picture-upload.service";
 import * as firebase from "firebase";
 import { AngularFireStorage } from "@angular/fire/storage";
 import { Observable } from "rxjs";
+import { UniversityName } from "src/app/interfaces/universities.model";
 
 @Component({
   selector: "app-user-generator",
@@ -167,7 +166,7 @@ export class UserGeneratorComponent {
     );
 
     //Map of pictures
-    const pictureCount = Math.floor(Math.random() * 5 + 1);
+    // const pictureCount = Math.floor(Math.random() * 5 + 1);
     // const pictures: profilePictureUrls = []; //Declared the 0 property to help TypeScript
     // Array.from({ length: numberOfPics }).map(() => {
     //   pictures.push(faker.image.animals());
@@ -177,9 +176,9 @@ export class UserGeneratorComponent {
     const biography: string = faker.lorem.sentence(Math.floor(Math.random() * 20 + 5));
 
     //University
-    const university: University = searchCriteriaGenOptions.university[
+    const university: UniversityName = searchCriteriaGenOptions.university[
       Math.floor(Math.random() * searchCriteriaGenOptions.university.length)
-    ] as University;
+    ] as UniversityName;
 
     const degree: Degree =
       searchCriteriaGenOptions.degree[
@@ -223,10 +222,10 @@ export class UserGeneratorComponent {
       questions.push({ question: Q, answer: faker.lorem.sentence() });
     });
 
-    const onCampus: OnCampus =
-      searchCriteriaGenOptions.onCampus[
-        Math.floor(Math.random() * searchCriteriaGenOptions.onCampus.length)
-      ];
+    // const onCampus: OnCampus =
+    //   searchCriteriaGenOptions.onCampus[
+    //     Math.floor(Math.random() * searchCriteriaGenOptions.onCampus.length)
+    //   ];
 
     const numberOfSocials = Math.floor(Math.random() * socialMediaGenOptions.length + 1);
     const socials: socialMedia[] = [];
@@ -242,7 +241,7 @@ export class UserGeneratorComponent {
     const userProfile: profileFromDatabase = {
       firstName,
       dateOfBirth,
-      pictureCount,
+      // pictureCount,
       biography,
       university,
       degree,
@@ -252,7 +251,7 @@ export class UserGeneratorComponent {
       areaOfStudy,
       interests,
       questions,
-      onCampus,
+      // onCampus,
       socialMediaLinks,
       hasMatchDocument: false,
     };
@@ -268,8 +267,8 @@ export class UserGeneratorComponent {
       areaOfStudy: null,
       degree: null,
       societyCategory: null,
-      interest: null,
-      onCampus: null,
+      interests: null,
+      // onCampus: null,
     };
 
     const privateUserProfile: privateProfileFromDatabase = {

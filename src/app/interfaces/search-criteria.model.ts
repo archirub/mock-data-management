@@ -1,6 +1,8 @@
+import { universityList } from "./universities.model";
+
 // DO NOT ADD ANY FIELDS
 export const searchCriteriaOptions = {
-  university: ["UCL" as const, "KCL" as const],
+  university: universityList,
 
   // DO NOT CHANGE
   degree: ["undergrad" as const, "postgrad" as const],
@@ -30,7 +32,7 @@ export const searchCriteriaOptions = {
     "Science and Technology" as const,
     "Sports" as const,
   ],
-  interest: [
+  interests: [
     "Herb Friendly" as const,
     "Book Worm" as const,
     "Life Saver" as const,
@@ -41,28 +43,52 @@ export const searchCriteriaOptions = {
     "Tik Toker" as const,
     "Library Fiend" as const,
     "Pub Crawler" as const,
+    "Math Geek" as const,
+    "Sports Knight" as const,
+    "Club Goer" as const,
+    "Casual Cupid" as const,
+    "Spiritual" as const,
+    "Activist" as const,
+    "Hopeless Romantic" as const,
+    "Radical" as const,
+    "Raver" as const,
+    "Music Nerd" as const,
   ],
 
-  onCampus: [true as const, false as const],
+  // onCampus: [true as const, false as const],
 };
 
 // CANNOT BE PLACED IN searchCriteriaOptions
 export const assetsInterestsPath = [
-  "/assets/interests/herbfriendly.png",
-  "/assets/interests/bookworm.png",
-  "/assets/interests/lifesaver.png",
-  "/assets/interests/cafedweller.png",
-  "/assets/interests/astrologist.png",
-  "/assets/interests/chef.png",
-  "/assets/interests/model.png",
-  "/assets/interests/tiktoker.png",
-  "/assets/interests/libraryfiend.png",
-  "/assets/interests/pubcrawler.png",
+  "/assets/interests/herbfriendly.svg",
+  "/assets/interests/bookworm.svg",
+  "/assets/interests/lifesaver.svg",
+  "/assets/interests/cafedweller.svg",
+  "/assets/interests/astrologist.svg",
+  "/assets/interests/chef.svg",
+  "/assets/interests/model.svg",
+  "/assets/interests/tiktoker.svg",
+  "/assets/interests/libraryfiend.svg",
+  "/assets/interests/pubcrawler.svg",
+  "/assets/interests/mathgeek.svg",
+  "/assets/interests/sportsknight.svg",
+  "/assets/interests/clubgoer.svg",
+  "/assets/interests/casualcupid.svg",
+  "/assets/interests/spiritual.svg",
+  "/assets/interests/activist.svg",
+  "/assets/interests/hopelessromantic.svg",
+  "/assets/interests/radical.svg",
+  "/assets/interests/raver.svg",
+  "/assets/interests/musicnerd.svg",
 ] as const;
 
 export type searchCriteria = {
   [k in keyof typeof searchCriteriaOptions]: typeof searchCriteriaOptions[k][number];
 };
+
+export function interestToPath(interest: Interests): string {
+  return "/assets/interests/" + interest.toLowerCase().replace(/\s/g, "") + ".svg";
+}
 
 // Important for backend
 export const searchCriteriaNames: (keyof searchCriteria)[] = [
@@ -70,23 +96,24 @@ export const searchCriteriaNames: (keyof searchCriteria)[] = [
   "areaOfStudy",
   "degree",
   "societyCategory",
-  "interest",
-  "onCampus",
+  "interests",
+  // "onCampus",
 ];
 
-// same as searchCriteria but some SC can be multiple i.e. for interest where
-// we have an array of interest
-export type SearchFeatures = Omit<searchCriteria, "interest"> & {
-  interests: typeof searchCriteriaOptions["interest"][number][];
+export const searchFeatureNames = searchCriteriaNames;
+
+// same as searchCriteria but some SC can be multiple i.e. for interests where
+// we have an array of interests
+export type SearchFeatures = Omit<searchCriteria, "interests"> & {
+  interests: typeof searchCriteriaOptions["interests"][number][];
 };
 
-export type University = typeof searchCriteriaOptions.university[number];
 export type AreaOfStudy = typeof searchCriteriaOptions.areaOfStudy[number]; //MOCK DATA
 export type Degree = typeof searchCriteriaOptions.degree[number];
 export type SocietyCategory = typeof searchCriteriaOptions.societyCategory[number];
-export type Interests = typeof searchCriteriaOptions.interest[number];
-export type Path = typeof assetsInterestsPath[number];
-export type InterestAndPath = { name: Interests; path: Path };
-export type OnCampus = typeof searchCriteriaOptions.onCampus[number];
+export type Interests = typeof searchCriteriaOptions.interests[number];
+// export type InterestPath = typeof assetsInterestsPath[number];
+// export type InterestAndPath = { name: Interests; path: InterestPath };
+// export type OnCampus = typeof searchCriteriaOptions.onCampus[number];
 
 export type Criterion = keyof typeof searchCriteriaOptions;
