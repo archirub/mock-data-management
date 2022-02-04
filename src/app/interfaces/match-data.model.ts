@@ -93,7 +93,7 @@ export interface piStorageUidMaps {
 }
 export type piStorage = piStorageDefault & piStorageUidMaps;
 
-export const genderOptions = ["male" as const, "female" as const, "other" as const];
+export const genderOptions = ["male" as const, "female" as const, "trans" as const];
 export type Gender = typeof genderOptions[number];
 export const sexualPreferenceOptions = [
   ["male" as const],

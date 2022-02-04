@@ -11,8 +11,8 @@ export const searchCriteriaGenOptions = {
   areaOfStudy: searchCriteriaOptions.areaOfStudy,
   degree: searchCriteriaOptions.degree,
   societyCategory: searchCriteriaOptions.societyCategory,
-  interest: searchCriteriaOptions.interest,
-  onCampus: searchCriteriaOptions.onCampus,
+  interests: searchCriteriaOptions.interests,
+  // onCampus: searchCriteriaOptions.onCampus,
 };
 
 export const socialFeatureGenOptions = {

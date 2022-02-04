@@ -14,7 +14,7 @@ import {
   messageReactionOptions,
 } from "../../../interfaces/message.model";
 import { profileFromDatabase, profileObject } from "../../../interfaces/profile.model";
-import { QueryDocumentSnapshot } from "@angular/fire/firestore";
+import { AngularFirestore, QueryDocumentSnapshot } from "@angular/fire/firestore";
 
 @Component({
   selector: "app-chat-generator",
@@ -25,7 +25,8 @@ export class ChatGeneratorComponent {
   constructor(
     private environment: EnvironmentService,
     private name: NameService,
-    private get: GetService
+    private get: GetService,
+    private fs: AngularFirestore
   ) {}
 
   /**
@@ -50,17 +51,16 @@ export class ChatGeneratorComponent {
     numberOfChats = numberOfChats ? +numberOfChats : 10;
     numberOfMessages = numberOfMessages ? +numberOfMessages : 10;
 
-    const myID = userID ? userID : "oY6HiUHmUvcKbFQQnb88t3U4Zew1";
+    const myID = userID ? userID : "dXjllb2bLSgrtrifKFbxSEjqaXE2";
 
     // FETCHING TARGET DOC PROFILE
     const myProfile = await this.get.profile(myID);
     if (!myProfile.exists) {
       return console.error("The user provided doesn't exist.");
     }
+
     if (!myProfile.get("hasMatchDocument")) {
-      return console.error(
-        "The user provided either doesn't exist or has no match document."
-      );
+      console.error("The user provided either doesn't exist or has no match document.");
     }
 
     // FETCHING PROFILES OF FUTURE CONVERSATIONAL USERS

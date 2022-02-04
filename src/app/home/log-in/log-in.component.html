@@ -1,1 +1,19 @@
-<button (click)="logIn()">LASKHDLASJD:AKSHD:ASKJHD:DAKSJH</button>
+<ion-card>
+  <ion-item *ngIf="signedInEmail$ | async as signedInEmail">
+    <ion-label>Signed in: {{ signedInEmail }}</ion-label>
+    <ion-button fill="outline" slot="end" (click)="logOut()">Log out</ion-button>
+  </ion-item>
+
+  <div *ngIf="!(signedInEmail$ | async)">
+    <ion-title>Sign In</ion-title>
+    <ion-item>
+      <ion-label>Email</ion-label>
+      <ion-input [(ngModel)]="email"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Password</ion-label>
+      <ion-input [(ngModel)]="password" type="password"></ion-input>
+    </ion-item>
+    <ion-button fill="outline" slot="end" (click)="logIn()">Sign In</ion-button>
+  </div></ion-card
+>

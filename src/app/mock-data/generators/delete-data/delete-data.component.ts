@@ -15,6 +15,6 @@ export class DeleteDataComponent implements OnInit {
     const response = await this.afFunctions
       .httpsCallable("deleteAllData")({})
       .toPromise();
-    console.log(JSON.parse(JSON.stringify(response.info)));
+    console.log(response);
   }
 }

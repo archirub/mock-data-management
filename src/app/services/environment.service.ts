@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 
 import { firebaseEnvironment } from "../interfaces/environment.model";
 import * as firebase from "firebase";
+import { BehaviorSubject } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -32,12 +33,27 @@ export class EnvironmentService {
 
   public activeDatabase: firebase.app.App;
 
+  authSub: firebase.Unsubscribe;
+
+  activeAuth() {
+    return this.activeDatabase.auth();
+  }
+
+  user$ = new BehaviorSubject<firebase.User>(null);
+
+  listenOnAuth() {
+    this.authSub?.();
+    this.authSub = this.activeAuth().onAuthStateChanged(this.user$);
+  }
+
   constructor() {
     firebase.initializeApp(this.productionEnvironment, "production");
     firebase.initializeApp(this.developmentEnvironment, "development");
     this.prodDatabase = firebase.app("production");
     this.devDatabase = firebase.app("development");
     this.activeDatabase = this.devDatabase;
+
+    this.listenOnAuth();
   }
 
   changeDatabase() {
@@ -51,5 +67,6 @@ export class EnvironmentService {
         'Unrecognized environment type. EnvironmentType osbervable was set to "development".'
       );
     }
+    this.listenOnAuth();
   }
 }

@@ -209,7 +209,7 @@ export class UserGeneratorComponent {
     const numberOfInterest = Math.floor(Math.random() * 2 + 1);
     const interests: Interests[] = [];
     this.shuffleArray([...Array(numberOfInterest).keys()]).forEach((index) => {
-      interests.push(searchCriteriaGenOptions.interest[index]);
+      interests.push(searchCriteriaGenOptions.interests[index]);
     });
 
     const numberOfQuestions = Math.floor(Math.random() * 2 + 1);

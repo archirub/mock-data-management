@@ -3,7 +3,8 @@ import { Component } from "@angular/core";
 import { Platform } from "@ionic/angular";
 import { SplashScreen } from "@ionic-native/splash-screen/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
-import { AngularFireAuth } from "@angular/fire/auth";
+// import { AngularFireAuth } from "@angular/fire/auth";
+import { EnvironmentService } from "./services/environment.service";
 
 @Component({
   selector: "app-root",
@@ -15,10 +16,10 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private afAuth: AngularFireAuth
+    private environment: EnvironmentService
   ) {
     this.initializeApp();
-    this.afAuth.authState.subscribe((a) => console.log("current auht state is", a));
+    this.environment.user$.subscribe((a) => console.log("current auth state is", a));
   }
 
   initializeApp() {

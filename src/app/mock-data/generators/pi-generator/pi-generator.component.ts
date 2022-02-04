@@ -24,7 +24,7 @@ interface PiMap {
   showProfile: boolean;
   percentile: number;
   degree: any;
-  gender: "male" | "female" | "other";
+  gender: "male" | "female" | "trans";
   sexualPreference: SexualPreference;
 }
 
@@ -140,7 +140,7 @@ export class PiGeneratorComponent implements OnInit {
       uids: friendMaps.map((m) => m.uid),
     };
 
-    // Here gender is taken from sexualPreference on purpose, as we dont' want "other"
+    // Here gender is taken from sexualPreference on purpose, as we dont' want "trans"
     // included there
     for (const gender of ["male", "female"]) {
       for (const sexualPreference of ["male", "female"]) {
